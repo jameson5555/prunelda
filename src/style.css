@@ -25,6 +25,11 @@
   --ink-soft: rgba(33, 30, 26, 0.82);
   --ink-faint: rgba(33, 30, 26, 0.58);
   --shadow: 0 18px 48px rgba(31, 52, 91, 0.12);
+  --atari-black: #020202;
+  --atari-green: #12e9a1;
+  --atari-gold: #dca21a;
+  --atari-white: #d8d8df;
+  --atari-blue: #3d74cf;
 }
 
 * {
@@ -83,6 +88,10 @@ ul {
 .landing-shell {
   grid-template-columns: minmax(0, 1fr) minmax(360px, 0.95fr);
   align-items: stretch;
+}
+
+.title-shell {
+  max-width: 900px;
 }
 
 .hero-panel,
@@ -178,6 +187,11 @@ h3 {
   min-height: 560px;
 }
 
+.title-marquee {
+  width: 100%;
+  overflow: hidden;
+}
+
 .marquee-mini,
 .marquee-big,
 .marquee-title,
@@ -208,13 +222,30 @@ h3 {
 
 .marquee-copy {
   max-width: 32rem;
-  color: rgba(255, 255, 255, 0.88);
-  font-size: 0.98rem;
+  color: var(--atari-white);
+  font-size: clamp(0.92rem, 1.4vw, 1.2rem);
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .marquee-actions {
   justify-content: center;
+  width: 100%;
+}
+
+.title-footer {
+  width: 100%;
+  margin-top: 1.2rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.title-footer p {
+  color: var(--atari-white);
+  font-size: 0.95rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  padding-top: 0.75rem;
 }
 
 .promo-card {
@@ -304,12 +335,26 @@ h3 {
 
 .hero-button.ghost {
   background: transparent;
-  border-color: var(--border);
-  color: var(--accent-soft);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: var(--atari-white);
 }
 
 .hero-button.small {
   padding: 0.62rem 0.95rem;
+}
+
+.retro-screen .hero-button {
+  min-width: 11rem;
+}
+
+.retro-screen .hero-button.secondary {
+  background: white;
+  color: var(--atari-blue);
+}
+
+.retro-screen .hero-button.ghost {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--atari-white);
 }
 
 .count-pill.selected,
@@ -348,6 +393,57 @@ select {
 .play-shell {
   display: grid;
   gap: 1rem;
+}
+
+.gameplay-shell {
+  color: var(--atari-white);
+}
+
+.gameplay-panel {
+  background: var(--atari-black);
+  color: var(--atari-white);
+}
+
+.gameplay-panel h2,
+.gameplay-panel h3,
+.gameplay-shell .eyebrow,
+.gameplay-shell .market-id,
+.gameplay-shell .log-month {
+  color: var(--atari-green);
+}
+
+.gameplay-panel .headline,
+.gameplay-panel strong,
+.focus-card .turn-status {
+  color: var(--atari-gold);
+}
+
+.gameplay-panel .headline-blurb,
+.gameplay-panel .turn-event,
+.gameplay-panel .turn-status,
+.gameplay-panel .empty-note,
+.gameplay-panel .market-stats,
+.gameplay-panel span,
+.gameplay-panel p,
+.gameplay-panel li {
+  color: var(--atari-white);
+}
+
+.gameplay-panel input,
+.gameplay-panel select {
+  background: #08133f;
+  border-color: rgba(61, 116, 207, 0.7);
+  color: var(--atari-white);
+}
+
+.gameplay-panel .holding-list li,
+.gameplay-panel .score-list li,
+.gameplay-panel .log-list li,
+.gameplay-panel .market-row,
+.gameplay-panel .masthead-stats div,
+.gameplay-panel .horatio-card {
+  background: #050b25;
+  border-color: rgba(61, 116, 207, 0.35);
 }
 
 .masthead-panel {
@@ -421,6 +517,23 @@ select {
   gap: 0.55rem;
 }
 
+.focus-card {
+  padding: 1.2rem;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+.focus-card .turn-event {
+  font-size: clamp(1.2rem, 2.3vw, 1.85rem);
+  line-height: 1.35;
+  color: var(--atari-white);
+}
+
+.focus-card .turn-status {
+  font-size: clamp(1.35rem, 2.7vw, 2rem);
+  line-height: 1.32;
+  font-weight: 700;
+}
+
 .action-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -452,15 +565,6 @@ select {
   background: var(--panel-soft);
   border: 1px solid rgba(47, 108, 203, 0.22);
   padding: 0.7rem 0.75rem;
-}
-
-.portrait-panel {
-  gap: 0.85rem;
-}
-
-.portrait-caption {
-  color: var(--ink-soft);
-  font-size: 0.95rem;
 }
 
 .ending-layout {
@@ -540,7 +644,6 @@ select {
 }
 
 @media (max-width: 1180px) {
-  .landing-shell,
   .masthead-panel,
   .play-grid,
   .action-grid,
@@ -575,6 +678,10 @@ select {
     grid-template-columns: 1fr;
   }
 
+  .title-footer {
+    grid-template-columns: 1fr;
+  }
+
   .hero-actions,
   .count-row,
   .setup-actions,
@@ -582,5 +689,10 @@ select {
   .panel-heading {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .retro-screen .hero-button {
+    min-width: 0;
+    width: 100%;
   }
 }

@@ -402,8 +402,8 @@ function titleView() {
     : ''
 
   return `
-    <main class="game-shell intro-shell landing-shell">
-      <section class="arcade-marquee retro-screen">
+    <main class="game-shell intro-shell title-shell">
+      <section class="arcade-marquee retro-screen title-marquee">
         <p class="marquee-mini">Aunt</p>
         <p class="marquee-big">Prunelda&apos;s</p>
         <h1 class="marquee-title">Inheritance!</h1>
@@ -413,22 +413,10 @@ function titleView() {
           ${continueButton}
           ${state.game ? '<button class="hero-button ghost" data-action="clear-save">Clear Save</button>' : ''}
         </div>
-      </section>
-
-      <section class="hero-panel promo-card">
-        <div class="promo-copy">
-          <p class="eyebrow">A Family Game For 1 To 4 Players</p>
-          <h2>Aunt Prunelda&apos;s Inheritance</h2>
-          <p class="hero-copy">Invest in the market, play craps in the casino, and sabotage your opponents while you chase the family fortune.</p>
-          <ul class="feature-list">
-            <li>Trade across 26 stocks</li>
-            <li>Ride monthly news swings</li>
-            <li>Beat Cousin Horatio</li>
-          </ul>
-        </div>
-        <div class="promo-visual">
-          <img class="cover-portrait" src="${assetUrl('images/cover.jpg')}" alt="Original Aunt Prunelda cover art." />
-          <img class="ad-clipping" src="${assetUrl('images/ad.jpg')}" alt="Original advertisement for Aunt Prunelda's Inheritance." />
+        <div class="title-footer">
+          <p>Trade across 26 stocks</p>
+          <p>Ride monthly news swings</p>
+          <p>Beat Cousin Horatio</p>
         </div>
       </section>
     </main>
@@ -544,8 +532,8 @@ function gameView() {
   const netWorth = playerNetWorth(game, player)
 
   return `
-    <main class="game-shell play-shell">
-      <section class="masthead-panel">
+    <main class="game-shell play-shell gameplay-shell">
+      <section class="masthead-panel retro-screen gameplay-panel">
         <div>
           <p class="eyebrow">Month ${game.month} of ${game.monthsTotal}</p>
           <h1>Aunt Prunelda&apos;s Inheritance</h1>
@@ -562,14 +550,14 @@ function gameView() {
 
       <section class="play-grid">
         <section class="main-panel">
-          <div class="turn-card">
+          <div class="turn-card retro-screen focus-card">
             <h2>Game Play Routine</h2>
             <p class="turn-event">${game.currentTurn.eventText}</p>
             <p class="turn-status">${game.currentTurn.status}</p>
           </div>
 
           <div class="action-grid">
-            <form id="buy-form" class="action-card">
+            <form id="buy-form" class="action-card retro-screen gameplay-panel">
               <h3>Stock Purchase Routine</h3>
               <label>
                 <span>Business</span>
@@ -584,7 +572,7 @@ function gameView() {
               <button type="submit" class="hero-button small">Buy</button>
             </form>
 
-            <form id="sell-form" class="action-card">
+            <form id="sell-form" class="action-card retro-screen gameplay-panel">
               <h3>Stock Sales Routine</h3>
               <label>
                 <span>Business</span>
@@ -599,7 +587,7 @@ function gameView() {
               <button type="submit" class="hero-button small secondary">Sell</button>
             </form>
 
-            <form id="bet-form" class="action-card">
+            <form id="bet-form" class="action-card retro-screen gameplay-panel">
               <h3>Would You Like To Bet?</h3>
               <label>
                 <span>Your bet is</span>
@@ -609,7 +597,7 @@ function gameView() {
             </form>
           </div>
 
-          <section class="holdings-panel">
+          <section class="holdings-panel retro-screen gameplay-panel">
             <div class="panel-heading">
               <h2>${player.name}&apos;s Current Holdings</h2>
               <button class="hero-button small secondary" data-action="end-turn">Press To Continue</button>
@@ -619,23 +607,21 @@ function gameView() {
         </section>
 
         <aside class="rail-panel">
-          <section class="side-panel portrait-panel">
-            <img class="portrait-card" src="${assetUrl('images/cover.jpg')}" alt="Original cover art of Aunt Prunelda." />
-            <p class="portrait-caption">Invest in the market. Play craps in the casino. Finish richer than Cousin Horatio.</p>
-          </section>
           ${playerScoreboard(game)}
-          <section class="side-panel">
+          <section class="side-panel retro-screen gameplay-panel">
             <h2>Stock Selection Menu</h2>
             ${marketTable(game, player)}
           </section>
-          <section class="side-panel compact-actions">
+          <section class="side-panel compact-actions retro-screen gameplay-panel">
             <button class="hero-button secondary" data-action="save-quit">Quit And Continue Later</button>
             <button class="hero-button ghost" data-action="restart-game">Start Over</button>
           </section>
         </aside>
       </section>
 
-      ${logMarkup(game)}
+      <section class="retro-screen gameplay-panel">
+        ${logMarkup(game)}
+      </section>
     </main>
   `
 }
