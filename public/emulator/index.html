@@ -248,12 +248,8 @@
       }
 
       function emitKey(character) {
-        const canvas = document.getElementById('canvas')
         const mapping = getKeyMapping(character)
         const targets = [document]
-
-        canvas.focus()
-        canvas.click()
 
         if (mapping.shiftKey) {
           const shift = getShiftMapping()
@@ -274,10 +270,18 @@
         }
       }
 
+      function prepareCanvasForTyping() {
+        const canvas = document.getElementById('canvas')
+
+        canvas.focus()
+        canvas.click()
+      }
+
       function queueCommand(command) {
         statusElement.textContent = 'Starting game...'
+        prepareCanvasForTyping()
         command.split('').concat('\r').forEach((character, index) => {
-          window.setTimeout(() => emitKey(character), 140 * index)
+          window.setTimeout(() => emitKey(character), 220 + 140 * index)
         })
       }
 
