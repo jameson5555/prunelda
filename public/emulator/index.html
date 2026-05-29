@@ -23,42 +23,47 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 1rem;
-        padding: 1rem;
+        gap: 0.5rem;
+        padding: 0.5rem;
         background:
           radial-gradient(circle at top, rgba(180, 141, 88, 0.28), transparent 34%),
           linear-gradient(180deg, #1c161d, #0f0d12 42%, #09080c 100%);
         touch-action: manipulation;
       }
 
-      .masthead {
-        text-align: center;
-      }
-
-      .masthead h1 {
-        margin: 0;
-        font-size: clamp(1.4rem, 3vw, 2.2rem);
-        letter-spacing: 0.04em;
-      }
-
-      .masthead p {
-        margin: 0.35rem 0 0;
-        color: rgba(230, 222, 207, 0.72);
-      }
-
       .frame {
-        width: min(100%, 980px);
+        width: min(100%, 1100px);
         border: 1px solid rgba(208, 183, 132, 0.35);
         border-radius: 18px;
-        padding: 1rem;
+        padding: 0.65rem;
         background: rgba(12, 10, 15, 0.78);
         box-shadow: 0 18px 60px rgba(0, 0, 0, 0.4);
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.6rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .toolbar-meta {
+        color: rgba(230, 222, 207, 0.72);
+        font-size: 0.95rem;
+      }
+
+      .toolbar-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
       }
 
       canvas.emscripten {
         display: block;
         width: 100%;
-        max-width: 800px;
+        max-width: 100%;
         margin: 0 auto;
         aspect-ratio: 4 / 3;
         border: 0;
@@ -71,14 +76,7 @@
         text-align: center;
         color: rgba(230, 222, 207, 0.72);
         font-size: 0.95rem;
-      }
-
-      .toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.75rem;
-        margin-top: 0.75rem;
+        margin-top: 0.5rem;
       }
 
       button,
@@ -98,31 +96,6 @@
         background: rgba(83, 56, 47, 0.95);
       }
 
-      .notes {
-        width: min(100%, 980px);
-        display: grid;
-        gap: 0.75rem;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      }
-
-      .card {
-        border-radius: 16px;
-        padding: 1rem;
-        background: rgba(22, 18, 25, 0.84);
-        border: 1px solid rgba(208, 183, 132, 0.18);
-      }
-
-      .card h2 {
-        margin: 0 0 0.35rem;
-        font-size: 1rem;
-      }
-
-      .card p {
-        margin: 0;
-        color: rgba(230, 222, 207, 0.72);
-        line-height: 1.5;
-      }
-
       #output,
       #controls,
       #progress,
@@ -136,19 +109,37 @@
         }
 
         .frame {
-          padding: 0.65rem;
+          padding: 0.5rem;
           border-radius: 14px;
+        }
+
+        .toolbar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .toolbar-actions {
+          width: 100%;
+        }
+
+        .toolbar-actions > * {
+          flex: 1 1 0;
+          text-align: center;
         }
       }
     </style>
   </head>
   <body>
-    <header class="masthead">
-      <h1>Aunt Prunelda's Inheritance</h1>
-      <p>Browser player powered by jsA8E, adapted from AtariOnline.</p>
-    </header>
-
     <main class="frame">
+      <div class="toolbar">
+        <div class="toolbar-meta">If you land on EDIT, use Start Game.</div>
+        <div class="toolbar-actions">
+          <button id="start-button" type="button">Start Game</button>
+          <button id="reset-button" type="button">Reset</button>
+          <button id="fullscreen-button" type="button">Fullscreen</button>
+          <a class="button" href="../">Back</a>
+        </div>
+      </div>
       <canvas
         class="emscripten"
         id="canvas"
@@ -158,27 +149,7 @@
         tabindex="0"
       ></canvas>
       <div class="status" id="status"></div>
-      <div class="toolbar">
-        <button id="reset-button" type="button">Reset Emulator</button>
-        <button id="fullscreen-button" type="button">Fullscreen</button>
-        <a class="button" href="../">Return to Prunelda</a>
-      </div>
     </main>
-
-    <section class="notes">
-      <article class="card">
-        <h2>Keyboard</h2>
-        <p>Tap the game screen first. Use your keyboard inside the Atari session. F1-F5 map to the Atari console keys.</p>
-      </article>
-      <article class="card">
-        <h2>Mobile</h2>
-        <p>Fullscreen is recommended on phones and tablets. Touch keyboard support depends on your browser and the game's original input expectations.</p>
-      </article>
-      <article class="card">
-        <h2>Credits</h2>
-        <p>Emulator runtime: jsA8E by Sascha Springer, distributed via the AtariOnline project by eahumada.</p>
-      </article>
-    </section>
 
     <textarea id="output" rows="4"></textarea>
     <div id="controls"></div>
@@ -187,6 +158,9 @@
 
     <script>
       const DEFAULT_DISK = 'prunelda.atr'
+      const AUTORUN_COMMAND = 'RUN "D:AUNTPRUN"'
+      const AUTORUN_DELAY_MS = 1800
+      let startupAttempted = false
 
       function getUrlParam(name) {
         const params = new URLSearchParams(window.location.search)
@@ -212,9 +186,87 @@
         DataRequest.prototype.requests['data/' + diskFilename].onload()
       }
 
+      function getKeyMapping(character) {
+        if (character === '\r') {
+          return { key: 'Enter', code: 'Enter', keyCode: 13, charCode: 13 }
+        }
+
+        if (character === ' ') {
+          return { key: ' ', code: 'Space', keyCode: 32, charCode: 32 }
+        }
+
+        if (character === '"') {
+          return { key: '"', code: 'Quote', keyCode: 222, charCode: 34 }
+        }
+
+        if (character === ':') {
+          return { key: ':', code: 'Semicolon', keyCode: 186, charCode: 58 }
+        }
+
+        const upper = character.toUpperCase()
+        return {
+          key: upper,
+          code: `Key${upper}`,
+          keyCode: upper.charCodeAt(0),
+          charCode: upper.charCodeAt(0),
+        }
+      }
+
+      function createKeyboardEvent(type, mapping) {
+        const event = new KeyboardEvent(type, {
+          key: mapping.key,
+          code: mapping.code,
+          bubbles: true,
+          cancelable: true,
+        })
+
+        Object.defineProperty(event, 'keyCode', { get: () => mapping.keyCode })
+        Object.defineProperty(event, 'which', {
+          get: () => (type === 'keypress' ? mapping.charCode : mapping.keyCode),
+        })
+        Object.defineProperty(event, 'charCode', {
+          get: () => (type === 'keypress' ? mapping.charCode : 0),
+        })
+
+        return event
+      }
+
+      function emitKey(character) {
+        const canvas = document.getElementById('canvas')
+        const mapping = getKeyMapping(character)
+        const targets = [canvas, document, window]
+
+        canvas.focus()
+        canvas.click()
+
+        targets.forEach((target) => target.dispatchEvent(createKeyboardEvent('keydown', mapping)))
+
+        if (mapping.charCode) {
+          targets.forEach((target) => target.dispatchEvent(createKeyboardEvent('keypress', mapping)))
+        }
+
+        targets.forEach((target) => target.dispatchEvent(createKeyboardEvent('keyup', mapping)))
+      }
+
+      function queueCommand(command) {
+        statusElement.textContent = 'Starting game...'
+        command.split('').concat('\r').forEach((character, index) => {
+          window.setTimeout(() => emitKey(character), 140 * index)
+        })
+      }
+
+      function startGame(force = false) {
+        if (startupAttempted && !force) {
+          return
+        }
+
+        startupAttempted = true
+        queueCommand(AUTORUN_COMMAND)
+      }
+
       var Module = {
         preRun: [],
-        postRun: [],
+        postRun: [() => window.setTimeout(() => startGame(false), AUTORUN_DELAY_MS)],
         canvas: document.getElementById('canvas'),
         arguments: ['data/' + diskFilename],
         print: (function () {
@@ -247,12 +299,16 @@
           Module.setStatus(
             left
               ? 'Preparing emulator... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')'
-              : 'Game loaded. Click the screen to play.'
+              : 'Booting disk...'
           )
         },
       }
 
       Module.setStatus('Downloading emulator...')
+
+      document.getElementById('start-button').addEventListener('click', () => {
+        startGame(true)
+      })
 
       document.getElementById('reset-button').addEventListener('click', () => {
         window.location.reload()
