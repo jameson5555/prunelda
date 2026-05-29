@@ -67,43 +67,6 @@ dd {
   padding: 0.35rem;
 }
 
-.button-primary,
-.button-secondary {
-  border-radius: 999px;
-  padding: 0.85rem 1.25rem;
-  border: 1px solid rgba(241, 208, 154, 0.45);
-  transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-.button-primary {
-  text-decoration: none;
-  color: #20150f;
-  background: linear-gradient(135deg, #f1d09a, #c79249);
-}
-
-.button-secondary {
-  color: #f7eddc;
-  background: rgba(63, 42, 30, 0.84);
-}
-
-.button-primary:hover,
-.button-secondary:hover {
-  transform: translateY(-1px);
-}
-
-.player-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-}
-
-.player-overlay-actions {
-  position: absolute;
-  top: 0.9rem;
-  right: 0.9rem;
-  z-index: 2;
-}
-
 .player-frame {
   background: var(--panel-strong);
   border-radius: 20px;
@@ -132,17 +95,6 @@ dd {
 @media (max-width: 640px) {
   .player-shell {
     border-radius: 20px;
-  }
-
-  .player-overlay-actions {
-    top: 0.65rem;
-    left: 0.65rem;
-    right: 0.65rem;
-  }
-
-  .player-actions > * {
-    flex: 1 1 0;
-    text-align: center;
   }
 
   .player-frame iframe {

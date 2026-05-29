@@ -162,6 +162,8 @@
     <script type="text/javascript" src="vendor/js/emularity/loader.js"></script>
     <script>
       const DEFAULT_DISK = 'prunelda.atr'
+      const AUTO_ADVANCE_KEY = ' '
+      const AUTO_ADVANCE_DELAY_SECONDS = '8'
       const statusElement = document.getElementById('status')
       let emulator
 
@@ -193,6 +195,7 @@
             JSMESSLoader.driver('a800xl'),
             JSMESSLoader.nativeResolution(672, 450),
             JSMESSLoader.scale(1),
+            JSMESSLoader.autoboot(AUTO_ADVANCE_KEY),
             JSMESSLoader.mountFile(
               'a800xl.zip',
               JSMESSLoader.fetchFile('BIOS', 'vendor/emulators/mame/a800xl.zip')
@@ -205,7 +208,7 @@
             diskPeripheral,
             JSMESSLoader.emulatorJS('vendor/js/emulators/mame/mamea800xl.js'),
             JSMESSLoader.emulatorWASM('vendor/js/emulators/mame/mamea800xl.wasm'),
-            JSMESSLoader.extraArgs([''])
+            JSMESSLoader.extraArgs(['-autoboot_delay', AUTO_ADVANCE_DELAY_SECONDS])
           )
         )
 
