@@ -158,7 +158,7 @@
 
     <script>
       const DEFAULT_DISK = 'prunelda.atr'
-      const AUTORUN_COMMAND = 'RUN "D:AUNTPRUN"'
+      const AUTORUN_COMMAND = 'POKE 842,12:RUN "D:AUNTPRUN"'
       const AUTORUN_DELAY_MS = 1800
       let startupAttempted = false
 
@@ -187,20 +187,24 @@
       }
 
       function getKeyMapping(character) {
+        if (character === ',') {
+          return { key: ',', code: 'Comma', keyCode: 44, charCode: 44, shiftKey: false }
+        }
+
         if (character === '\r') {
-          return { key: 'Enter', code: 'Enter', keyCode: 13, charCode: 13 }
+          return { key: 'Enter', code: 'Enter', keyCode: 13, charCode: 13, shiftKey: false }
         }
 
         if (character === ' ') {
-          return { key: ' ', code: 'Space', keyCode: 32, charCode: 32 }
+          return { key: ' ', code: 'Space', keyCode: 32, charCode: 32, shiftKey: false }
         }
 
         if (character === '"') {
-          return { key: '"', code: 'Quote', keyCode: 222, charCode: 34 }
+          return { key: '"', code: 'Quote', keyCode: 39, charCode: 34, shiftKey: true }
         }
 
         if (character === ':') {
-          return { key: ':', code: 'Semicolon', keyCode: 186, charCode: 58 }
+          return { key: ':', code: 'Semicolon', keyCode: 59, charCode: 58, shiftKey: true }
         }
 
         const upper = character.toUpperCase()
@@ -209,6 +213,7 @@
           code: `Key${upper}`,
           keyCode: upper.charCodeAt(0),
           charCode: upper.charCodeAt(0),
+          shiftKey: false,
         }
       }
 
@@ -216,6 +221,7 @@
         const event = new KeyboardEvent(type, {
           key: mapping.key,
           code: mapping.code,
+          shiftKey: Boolean(mapping.shiftKey),
           bubbles: true,
           cancelable: true,
         })
@@ -231,13 +237,28 @@
         return event
       }
 
+      function getShiftMapping() {
+        return {
+          key: 'Shift',
+          code: 'ShiftLeft',
+          keyCode: 16,
+          charCode: 0,
+          shiftKey: true,
+        }
+      }
+
       function emitKey(character) {
         const canvas = document.getElementById('canvas')
         const mapping = getKeyMapping(character)
-        const targets = [canvas, document, window]
+        const targets = [document]
 
         canvas.focus()
         canvas.click()
+
+        if (mapping.shiftKey) {
+          const shift = getShiftMapping()
+          targets.forEach((target) => target.dispatchEvent(createKeyboardEvent('keydown', shift)))
+        }
 
         targets.forEach((target) => target.dispatchEvent(createKeyboardEvent('keydown', mapping)))
 
@@ -246,6 +267,11 @@
         }
 
         targets.forEach((target) => target.dispatchEvent(createKeyboardEvent('keyup', mapping)))
+
+        if (mapping.shiftKey) {
+          const shift = getShiftMapping()
+          targets.forEach((target) => target.dispatchEvent(createKeyboardEvent('keyup', shift)))
+        }
       }
 
       function queueCommand(command) {
