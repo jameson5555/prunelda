@@ -1,30 +1,30 @@
 :root {
-  color-scheme: light;
+  color-scheme: dark;
   font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
   line-height: 1.45;
-  color: #211e1a;
+  color: var(--atari-white);
   background:
-    radial-gradient(circle at top, rgba(98, 145, 213, 0.16), transparent 20%),
-    linear-gradient(180deg, #efe9da 0%, #e7decb 100%);
+    radial-gradient(circle at top, rgba(61, 116, 207, 0.18), transparent 24%),
+    linear-gradient(180deg, #08133f 0%, #04091f 45%, #020202 100%);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --paper: #f8f4ea;
-  --paper-strong: #fffdf7;
-  --paper-soft: #f0eadb;
-  --panel: rgba(248, 244, 234, 0.96);
-  --panel-strong: rgba(255, 253, 247, 0.98);
-  --panel-soft: rgba(238, 231, 215, 0.95);
-  --border: rgba(31, 88, 173, 0.35);
-  --border-strong: #2f6ccb;
-  --accent: #2f6ccb;
-  --accent-soft: #111111;
+  --paper: #050b25;
+  --paper-strong: #08133f;
+  --paper-soft: #09112f;
+  --panel: rgba(5, 11, 37, 0.96);
+  --panel-strong: rgba(8, 19, 63, 0.98);
+  --panel-soft: rgba(9, 17, 47, 0.95);
+  --border: rgba(61, 116, 207, 0.45);
+  --border-strong: #3d74cf;
+  --accent: #12e9a1;
+  --accent-soft: #d8d8df;
   --gold: #dca21a;
   --mint: #12e9a1;
-  --ink-soft: rgba(33, 30, 26, 0.82);
-  --ink-faint: rgba(33, 30, 26, 0.58);
-  --shadow: 0 18px 48px rgba(31, 52, 91, 0.12);
+  --ink-soft: rgba(216, 216, 223, 0.88);
+  --ink-faint: rgba(216, 216, 223, 0.66);
+  --shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
   --atari-black: #020202;
   --atari-green: #12e9a1;
   --atari-gold: #dca21a;
@@ -40,6 +40,9 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(61, 116, 207, 0.18), transparent 24%),
+    linear-gradient(180deg, #08133f 0%, #04091f 45%, #020202 100%);
 }
 
 button,
@@ -329,8 +332,8 @@ h3 {
 
 .hero-button.secondary,
 .count-pill {
-  background: white;
-  color: var(--accent);
+  background: #0d1b52;
+  color: var(--atari-white);
 }
 
 .hero-button.ghost {
@@ -364,10 +367,31 @@ h3 {
   filter: brightness(0.96);
 }
 
+.hero-button:hover,
+.count-pill:hover {
+  background: #1740a3;
+}
+
 .setup-form {
   display: grid;
   gap: 0.9rem;
   margin-top: 1.1rem;
+}
+
+.setup-screen-panel {
+  max-width: 860px;
+}
+
+.setup-screen-panel h1,
+.setup-screen-panel .screen-rule,
+.setup-screen-panel .setup-row span {
+  color: var(--atari-green);
+}
+
+.setup-screen-panel input {
+  background: #08133f;
+  border-color: rgba(61, 116, 207, 0.7);
+  color: var(--atari-white);
 }
 
 .setup-row,
@@ -416,6 +440,27 @@ select {
 .gameplay-panel strong,
 .focus-card .turn-status {
   color: var(--atari-gold);
+}
+
+.setup-screen-panel .count-pill,
+.setup-screen-panel .hero-button,
+.ending-panel .hero-button {
+  background: #1130ba;
+  color: var(--atari-white);
+  border-color: rgba(216, 216, 223, 0.35);
+}
+
+.setup-screen-panel .hero-button.secondary,
+.setup-screen-panel .count-pill.selected,
+.ending-panel .hero-button.secondary {
+  background: white;
+  color: var(--atari-blue);
+}
+
+.setup-screen-panel .hero-button.ghost,
+.ending-panel .hero-button.ghost {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--atari-white);
 }
 
 .gameplay-panel .headline-blurb,

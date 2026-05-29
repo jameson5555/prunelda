@@ -436,7 +436,7 @@ function setupView() {
 
   return `
     <main class="game-shell setup-shell">
-      <section class="setup-panel">
+      <section class="setup-panel retro-screen gameplay-panel setup-screen-panel">
         <h1>Set Up Player Files</h1>
         <p class="screen-rule">HOW MANY WILL BE PLAYING (1-4)?</p>
         <div class="count-row">
@@ -504,7 +504,7 @@ function playerScoreboard(game) {
   `).join('')
 
   return `
-    <section class="side-panel">
+    <section class="side-panel retro-screen gameplay-panel">
       <h2>Family Ledger</h2>
       <ul class="score-list">${rankingRows}</ul>
       <div class="horatio-card">
@@ -517,7 +517,7 @@ function playerScoreboard(game) {
 
 function logMarkup(game) {
   return `
-    <section class="log-panel">
+    <section class="log-panel retro-screen gameplay-panel">
       <h2>Monthly News</h2>
       <ul class="log-list">
         ${game.log.map((entry) => `<li><span class="log-month">M${entry.month}</span><span>${entry.text}</span></li>`).join('')}
@@ -634,7 +634,7 @@ function endingView() {
 
   return `
     <main class="game-shell ending-shell">
-      <section class="hero-panel ending-panel">
+      <section class="hero-panel ending-panel retro-screen gameplay-panel">
         <div class="ending-layout">
           <div class="ending-copy">
             <p class="eyebrow">Routines For Game End</p>
