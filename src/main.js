@@ -26,11 +26,39 @@ function loadGame() {
   }
 
   try {
-    return JSON.parse(raw)
+    const game = JSON.parse(raw)
+    const updated = normalizeSavedGame(game)
+    if (updated) {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(game))
+    }
+    return game
   } catch {
     window.localStorage.removeItem(STORAGE_KEY)
     return null
   }
+}
+
+function normalizeSavedGame(game) {
+  if (!game?.currentTurn) {
+    return false
+  }
+
+  const player = currentPlayer(game)
+  if (!player) {
+    return false
+  }
+
+  const oldInstruction = `${player.name}, enter the number of the property you wish to visit next.`
+  if (game.currentTurn.status !== oldInstruction) {
+    return false
+  }
+
+  game.currentTurn.status = turnInstruction(player)
+  return true
+}
+
+function turnInstruction(player) {
+  return `${player.name}, trade stocks, place one optional dice bet, then press Continue to end your turn.`
 }
 
 function saveGame() {
@@ -218,7 +246,7 @@ function beginTurn(game) {
     eventText: eventResult.text,
     eventAmount: eventResult.amount,
     canBet: true,
-    status: `${player.name}, trade stocks, place one optional dice bet, then press Continue to end your turn.`,
+    status: turnInstruction(player),
   }
   game.currentTurnKey = `${game.month}-${player.id}`
 }
