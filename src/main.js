@@ -6,12 +6,9 @@ const playerUrl = `${base}emulator/index.html?disk_filename=prunelda.atr`
 document.querySelector('#app').innerHTML = `
   <main class="page-shell">
     <section class="player-shell">
-      <div class="player-topbar">
-        <h1>Aunt Prunelda's Inheritance</h1>
-        <div class="player-actions">
-          <button class="button-secondary" id="reload-player" type="button">Restart</button>
-          <a class="button-primary" href="${playerUrl}" target="_blank" rel="noreferrer">Open player</a>
-        </div>
+      <div class="player-actions player-overlay-actions">
+        <button class="button-secondary" id="reload-player" type="button">Restart</button>
+        <a class="button-primary" href="${playerUrl}" target="_blank" rel="noreferrer">Open player</a>
       </div>
       <div class="player-frame">
         <iframe

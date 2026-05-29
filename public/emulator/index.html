@@ -60,7 +60,7 @@
         gap: 0.5rem;
       }
 
-      canvas.emscripten {
+      #canvas {
         display: block;
         width: 100%;
         max-width: 100%;
@@ -103,6 +103,13 @@
         display: none;
       }
 
+      .controls-note {
+        margin-top: 0.5rem;
+        text-align: center;
+        color: rgba(230, 222, 207, 0.62);
+        font-size: 0.88rem;
+      }
+
       @media (max-width: 700px) {
         body {
           padding: 0.6rem;
@@ -132,23 +139,17 @@
   <body>
     <main class="frame">
       <div class="toolbar">
-        <div class="toolbar-meta">If you land on EDIT, use Start Game.</div>
+        <div class="toolbar-meta">F1 Help, F2 Start, F3 Select, F4 Option</div>
         <div class="toolbar-actions">
-          <button id="start-button" type="button">Start Game</button>
+          <button id="mute-button" type="button">Mute</button>
           <button id="reset-button" type="button">Reset</button>
           <button id="fullscreen-button" type="button">Fullscreen</button>
           <a class="button" href="../">Back</a>
         </div>
       </div>
-      <canvas
-        class="emscripten"
-        id="canvas"
-        oncontextmenu="event.preventDefault()"
-        width="800"
-        height="600"
-        tabindex="0"
-      ></canvas>
+      <canvas id="canvas" oncontextmenu="event.preventDefault()" width="672" height="450" tabindex="0"></canvas>
       <div class="status" id="status"></div>
+      <div class="controls-note">Arrow keys move. Left Option fires. Symbols follow the Atari keyboard layout.</div>
     </main>
 
     <textarea id="output" rows="4"></textarea>
@@ -156,188 +157,66 @@
     <progress value="0" max="0" id="progress"></progress>
     <div id="spinner"></div>
 
+    <script type="text/javascript" src="vendor/js/emularity/es6-promise.js"></script>
+    <script type="text/javascript" src="vendor/js/emularity/browserfs.min.js"></script>
+    <script type="text/javascript" src="vendor/js/emularity/loader.js"></script>
     <script>
       const DEFAULT_DISK = 'prunelda.atr'
-      const AUTORUN_COMMAND = 'POKE 842,12:RUN "D:AUNTPRUN"'
-      const AUTORUN_DELAY_MS = 1800
-      let startupAttempted = false
+      const statusElement = document.getElementById('status')
+      let emulator
 
       function getUrlParam(name) {
         const params = new URLSearchParams(window.location.search)
         return params.get(name) || ''
       }
 
-      const diskFilename = decodeURIComponent(getUrlParam('disk_filename') || DEFAULT_DISK)
-      const statusElement = document.getElementById('status')
-      const progressElement = document.getElementById('progress')
-      const spinnerElement = document.getElementById('spinner')
+      const diskFilename = decodeURIComponent(getUrlParam('disk_filename') || getUrlParam('disk') || DEFAULT_DISK)
 
-      var PACKAGE_NAME = './data/A8E.data'
-
-      function performDataRequests(DataRequest) {
-        new DataRequest(0, 8192, 0, 0).open('GET', 'data/ATARIBAS.ROM')
-        new DataRequest(8192, 24576, 0, 0).open('GET', 'data/ATARIXL.ROM')
-        new DataRequest(24576, 116752, 0, 0).open('GET', 'data/' + diskFilename)
+      function setStatus(text) {
+        statusElement.textContent = text
       }
 
-      function performDataRequestLoads(DataRequest) {
-        DataRequest.prototype.requests['data/ATARIBAS.ROM'].onload()
-        DataRequest.prototype.requests['data/ATARIXL.ROM'].onload()
-        DataRequest.prototype.requests['data/' + diskFilename].onload()
-      }
+      function bootEmulator() {
+        setStatus('Loading emulator...')
 
-      function getKeyMapping(character) {
-        if (character === ',') {
-          return { key: ',', code: 'Comma', keyCode: 188, charCode: 44, shiftKey: false }
-        }
+        const mountDisk = JSMESSLoader.mountFile(
+          'disk1.atr',
+          JSMESSLoader.fetchFile('Disk', 'data/' + diskFilename)
+        )
 
-        if (character === '\r') {
-          return { key: 'Enter', code: 'Enter', keyCode: 13, charCode: 13, shiftKey: false }
-        }
+        const diskPeripheral = JSMESSLoader.peripheral('flop1', 'disk1.atr')
 
-        if (character === ' ') {
-          return { key: ' ', code: 'Space', keyCode: 32, charCode: 32, shiftKey: false }
-        }
-
-        if (character === '"') {
-          return { key: '"', code: 'Quote', keyCode: 222, charCode: 34, shiftKey: true }
-        }
-
-        if (character === ':') {
-          return { key: ':', code: 'Semicolon', keyCode: 186, charCode: 58, shiftKey: true }
-        }
-
-        const upper = character.toUpperCase()
-        return {
-          key: upper,
-          code: `Key${upper}`,
-          keyCode: upper.charCodeAt(0),
-          charCode: upper.charCodeAt(0),
-          shiftKey: false,
-        }
-      }
-
-      function createKeyboardEvent(type, mapping) {
-        const event = new KeyboardEvent(type, {
-          key: mapping.key,
-          code: mapping.code,
-          shiftKey: Boolean(mapping.shiftKey),
-          bubbles: true,
-          cancelable: true,
-        })
-
-        Object.defineProperty(event, 'keyCode', { get: () => mapping.keyCode })
-        Object.defineProperty(event, 'which', {
-          get: () => (type === 'keypress' ? mapping.charCode : mapping.keyCode),
-        })
-        Object.defineProperty(event, 'charCode', {
-          get: () => (type === 'keypress' ? mapping.charCode : 0),
-        })
-
-        return event
-      }
-
-      function getShiftMapping() {
-        return {
-          key: 'Shift',
-          code: 'ShiftLeft',
-          keyCode: 16,
-          charCode: 0,
-          shiftKey: true,
-        }
-      }
-
-      function emitKey(character) {
-        const mapping = getKeyMapping(character)
-        const targets = [document]
-
-        if (mapping.shiftKey) {
-          const shift = getShiftMapping()
-          targets.forEach((target) => target.dispatchEvent(createKeyboardEvent('keydown', shift)))
-        }
-
-        targets.forEach((target) => target.dispatchEvent(createKeyboardEvent('keydown', mapping)))
-
-        if (mapping.charCode) {
-          targets.forEach((target) => target.dispatchEvent(createKeyboardEvent('keypress', mapping)))
-        }
-
-        targets.forEach((target) => target.dispatchEvent(createKeyboardEvent('keyup', mapping)))
-
-        if (mapping.shiftKey) {
-          const shift = getShiftMapping()
-          targets.forEach((target) => target.dispatchEvent(createKeyboardEvent('keyup', shift)))
-        }
-      }
-
-      function prepareCanvasForTyping() {
-        const canvas = document.getElementById('canvas')
-
-        canvas.focus()
-        canvas.click()
-      }
-
-      function queueCommand(command) {
-        statusElement.textContent = 'Starting game...'
-        prepareCanvasForTyping()
-        command.split('').concat('\r').forEach((character, index) => {
-          window.setTimeout(() => emitKey(character), 220 + 140 * index)
-        })
-      }
-
-      function startGame(force = false) {
-        if (startupAttempted && !force) {
-          return
-        }
-
-        startupAttempted = true
-        queueCommand(AUTORUN_COMMAND)
-      }
-
-      var Module = {
-        preRun: [],
-        postRun: [() => window.setTimeout(() => startGame(false), AUTORUN_DELAY_MS)],
-        canvas: document.getElementById('canvas'),
-        arguments: ['data/' + diskFilename],
-        print: (function () {
-          const element = document.getElementById('output')
-          element.value = ''
-          return function (text) {
-            element.value += Array.prototype.slice.call(arguments).join(' ') + '\n'
-            element.scrollTop = element.scrollHeight
-          }
-        })(),
-        printErr: function (text) {
-          console.log(Array.prototype.slice.call(arguments).join(' '))
-        },
-        setStatus: function (text) {
-          if (!text) {
-            statusElement.textContent = ''
-            return
-          }
-          const match = text.match(/([^(]+)\((\d+(?:\.\d+)?)\/(\d+)\)/)
-          if (match) {
-            progressElement.value = parseInt(match[2], 10) * 100
-            progressElement.max = parseInt(match[3], 10) * 100
-          }
-          statusElement.textContent = text
-          spinnerElement.hidden = !text
-        },
-        totalDependencies: 0,
-        monitorRunDependencies: function (left) {
-          this.totalDependencies = Math.max(this.totalDependencies, left)
-          Module.setStatus(
-            left
-              ? 'Preparing emulator... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')'
-              : 'Booting disk...'
+        emulator = new Emulator(
+          document.querySelector('#canvas'),
+          null,
+          new JSMESSLoader(
+            JSMESSLoader.driver('a800xl'),
+            JSMESSLoader.nativeResolution(672, 450),
+            JSMESSLoader.scale(1.2),
+            JSMESSLoader.mountFile(
+              'a800xl.zip',
+              JSMESSLoader.fetchFile('BIOS', 'vendor/emulators/mame/a800xl-bd.zip')
+            ),
+            JSMESSLoader.mountFile(
+              'a800xl.cfg',
+              JSMESSLoader.fetchFile('Config', 'vendor/emulators/mame/a800xl.cfg')
+            ),
+            mountDisk,
+            diskPeripheral,
+            JSMESSLoader.emulatorJS('vendor/js/emulators/mame/mamea800xl.js'),
+            JSMESSLoader.emulatorWASM('vendor/js/emulators/mame/mamea800xl.wasm'),
+            JSMESSLoader.extraArgs([''])
           )
-        },
+        )
+
+        emulator.start({ waitAfterDownloading: true })
+        window.setTimeout(() => setStatus(''), 2000)
       }
 
-      Module.setStatus('Downloading emulator...')
-
-      document.getElementById('start-button').addEventListener('click', () => {
-        startGame(true)
+      document.getElementById('mute-button').addEventListener('click', () => {
+        if (emulator) {
+          emulator.toggleMute()
+        }
       })
 
       document.getElementById('reset-button').addEventListener('click', () => {
@@ -350,7 +229,8 @@
           canvas.requestFullscreen()
         }
       })
+
+      bootEmulator()
     </script>
-    <script async type="text/javascript" src="js/A8E.js"></script>
   </body>
 </html>
