@@ -1,6 +1,6 @@
 # Aunt Prunelda's Inheritance
 
-This repository packages the original Atari disk image for Aunt Prunelda's Inheritance as a playable browser experience hosted from `/prunelda/` on jamesonmacarthur.com.
+This repository now ships a browser-native remake of Aunt Prunelda's Inheritance for hosting from `/prunelda/` on jamesonmacarthur.com.
 
 ## Development
 
@@ -21,14 +21,13 @@ The Vite config uses `base: '/prunelda/'` so the build output works when deploye
 
 ## Implementation notes
 
-- The browser player lives in `public/emulator/` and is adapted from the jsA8E packaging used by the AtariOnline project.
-- The original source disk image from the workspace root is copied into `public/emulator/data/prunelda.atr` for deployment.
-- The site shell in `src/` wraps the emulator with responsive layout, restart affordance, and a full-player link.
+- The playable app lives in `src/` as a Vite-powered vanilla JavaScript game.
+- The remake uses text, business names, prompts, and flow extracted from the original Atari release.
+- Browser save/continue uses `localStorage`.
 
 ## Attribution
 
-- jsA8E emulator: Sascha Springer.
-- Browser packaging inspiration and asset layout adapted from `eahumada/AtariOnline`.
+- Original game concept, text, and business data derived from Jack Eastman's Atari release.
 
 ## Deployment
 
