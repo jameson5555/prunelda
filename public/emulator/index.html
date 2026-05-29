@@ -162,6 +162,7 @@
     <script type="text/javascript" src="vendor/js/emularity/loader.js"></script>
     <script>
       const DEFAULT_DISK = 'prunelda.atr'
+      const DOS_BOOT_SELECTION = 'B'
       const statusElement = document.getElementById('status')
       let emulator
 
@@ -193,6 +194,7 @@
             JSMESSLoader.driver('a800xl'),
             JSMESSLoader.nativeResolution(672, 450),
             JSMESSLoader.scale(1.2),
+            JSMESSLoader.autoboot(DOS_BOOT_SELECTION),
             JSMESSLoader.mountFile(
               'a800xl.zip',
               JSMESSLoader.fetchFile('BIOS', 'vendor/emulators/mame/a800xl-bd.zip')
