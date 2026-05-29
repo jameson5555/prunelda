@@ -10,6 +10,7 @@ import {
 } from './game-data.js'
 
 const app = document.querySelector('#app')
+const baseUrl = import.meta.env.BASE_URL
 
 const state = {
   view: 'title',
@@ -41,6 +42,10 @@ function saveGame() {
 function clearSavedGame() {
   window.localStorage.removeItem(STORAGE_KEY)
   state.game = null
+}
+
+function assetUrl(path) {
+  return `${baseUrl}${path}`
 }
 
 function sample(list) {
@@ -274,6 +279,10 @@ function advanceTurn() {
     startMonth(game)
   }
 
+  if (game.finished) {
+    state.view = 'ending'
+  }
+
   saveGame()
   render()
 }
@@ -393,21 +402,33 @@ function titleView() {
     : ''
 
   return `
-    <main class="game-shell intro-shell retro-screen">
-      <section class="hero-panel title-panel">
-        <p class="eyebrow">Copyright 1984 by Jack Eastman</p>
-        <h1>Aunt Prunelda&apos;s Inheritance</h1>
-        <p class="screen-rule">A business inheritance simulation</p>
-        <p class="hero-copy">Aunt Prunelda has passed on to a greater glory. Out-invest the family, survive twelve absurd months of fortune and scandal, and finish richer than Cousin Horatio.</p>
-        <div class="hero-actions">
+    <main class="game-shell intro-shell landing-shell">
+      <section class="arcade-marquee retro-screen">
+        <p class="marquee-mini">Aunt</p>
+        <p class="marquee-big">Prunelda&apos;s</p>
+        <h1 class="marquee-title">Inheritance!</h1>
+        <p class="marquee-copy">Compete with other players and Cousin Horatio for your ridiculously wealthy aunt&apos;s estate.</p>
+        <div class="hero-actions marquee-actions">
           <button class="hero-button" data-action="begin-setup">Start New Game</button>
           ${continueButton}
           ${state.game ? '<button class="hero-button ghost" data-action="clear-save">Clear Save</button>' : ''}
         </div>
-        <div class="title-notes">
-          <p>1 to 4 players</p>
-          <p>26 businesses</p>
-          <p>12 monthly turns</p>
+      </section>
+
+      <section class="hero-panel promo-card">
+        <div class="promo-copy">
+          <p class="eyebrow">A Family Game For 1 To 4 Players</p>
+          <h2>Aunt Prunelda&apos;s Inheritance</h2>
+          <p class="hero-copy">Invest in the market, play craps in the casino, and sabotage your opponents while you chase the family fortune.</p>
+          <ul class="feature-list">
+            <li>Trade across 26 stocks</li>
+            <li>Ride monthly news swings</li>
+            <li>Beat Cousin Horatio</li>
+          </ul>
+        </div>
+        <div class="promo-visual">
+          <img class="cover-portrait" src="${assetUrl('images/cover.jpg')}" alt="Original Aunt Prunelda cover art." />
+          <img class="ad-clipping" src="${assetUrl('images/ad.jpg')}" alt="Original advertisement for Aunt Prunelda's Inheritance." />
         </div>
       </section>
     </main>
@@ -426,7 +447,7 @@ function setupView() {
   }).join('')
 
   return `
-    <main class="game-shell setup-shell retro-screen">
+    <main class="game-shell setup-shell">
       <section class="setup-panel">
         <h1>Set Up Player Files</h1>
         <p class="screen-rule">HOW MANY WILL BE PLAYING (1-4)?</p>
@@ -523,7 +544,7 @@ function gameView() {
   const netWorth = playerNetWorth(game, player)
 
   return `
-    <main class="game-shell play-shell retro-screen">
+    <main class="game-shell play-shell">
       <section class="masthead-panel">
         <div>
           <p class="eyebrow">Month ${game.month} of ${game.monthsTotal}</p>
@@ -598,6 +619,10 @@ function gameView() {
         </section>
 
         <aside class="rail-panel">
+          <section class="side-panel portrait-panel">
+            <img class="portrait-card" src="${assetUrl('images/cover.jpg')}" alt="Original cover art of Aunt Prunelda." />
+            <p class="portrait-caption">Invest in the market. Play craps in the casino. Finish richer than Cousin Horatio.</p>
+          </section>
           ${playerScoreboard(game)}
           <section class="side-panel">
             <h2>Stock Selection Menu</h2>
@@ -623,24 +648,32 @@ function endingView() {
 
   return `
     <main class="game-shell ending-shell">
-      <section class="hero-panel ending-panel retro-screen">
-        <p class="eyebrow">Routines For Game End</p>
-        <h1>${outcome.beatHoratio ? 'Aunt Prunelda Would Be Very Pleased!' : 'Aunt Prunelda Would Be Disappointed!'}</h1>
-        <p class="hero-copy">
-          ${outcome.beatHoratio
-            ? `${winner.name} has won Aunt Prunelda's fortune and is now ${formatMoney(INHERITANCE_BONUS)} wealthier.`
-            : `${winner.name} finishes with the strongest ledger, but Cousin Horatio still holds the family bragging rights.`}
-        </p>
-        <div class="ending-summary">
-          <div><span>Winning player</span><strong>${winner.name}</strong></div>
-          <div><span>Final net worth</span><strong>${formatMoney(winner.netWorth)}</strong></div>
-          <div><span>After inheritance</span><strong>${formatMoney(finalFortune)}</strong></div>
-          <div><span>Cousin Horatio</span><strong>${formatMoney(game.horatioNetWorth)}</strong></div>
-        </div>
-        <div class="hero-actions">
-          <button class="hero-button" data-action="begin-setup">Play Again</button>
-          <button class="hero-button secondary" data-action="continue-game">Review Game</button>
-          <button class="hero-button ghost" data-action="clear-save">Forget Saved Game</button>
+      <section class="hero-panel ending-panel">
+        <div class="ending-layout">
+          <div class="ending-copy">
+            <p class="eyebrow">Routines For Game End</p>
+            <p class="win-banner ${outcome.beatHoratio ? 'is-win' : 'is-loss'}">${outcome.beatHoratio ? 'You&apos;ve Won Aunt Prunelda&apos;s Fortune!' : 'Cousin Horatio Wins This Round'}</p>
+            <h1>${outcome.beatHoratio ? 'Aunt Prunelda Would Be Very Pleased!' : 'Aunt Prunelda Would Be Disappointed!'}</h1>
+            <p class="hero-copy">
+              ${outcome.beatHoratio
+                ? `${winner.name} has won Aunt Prunelda's fortune and is now ${formatMoney(INHERITANCE_BONUS)} wealthier.`
+                : `${winner.name} finishes with the strongest ledger, but Cousin Horatio still holds the family bragging rights.`}
+            </p>
+            <div class="ending-summary">
+              <div><span>Winning player</span><strong>${winner.name}</strong></div>
+              <div><span>Final net worth</span><strong>${formatMoney(winner.netWorth)}</strong></div>
+              <div><span>After inheritance</span><strong>${formatMoney(finalFortune)}</strong></div>
+              <div><span>Cousin Horatio</span><strong>${formatMoney(game.horatioNetWorth)}</strong></div>
+            </div>
+            <div class="hero-actions">
+              <button class="hero-button" data-action="begin-setup">Play Again</button>
+              <button class="hero-button secondary" data-action="continue-game">Review Game</button>
+              <button class="hero-button ghost" data-action="clear-save">Clear Save</button>
+            </div>
+          </div>
+          <div class="ending-art">
+            <img class="cover-portrait ending-portrait" src="${assetUrl('images/cover.jpg')}" alt="Aunt Prunelda cover art." />
+          </div>
         </div>
       </section>
       ${logMarkup(game)}
@@ -649,6 +682,11 @@ function endingView() {
 }
 
 function render() {
+  if (state.game?.finished) {
+    app.innerHTML = endingView()
+    return
+  }
+
   if (state.view === 'setup') {
     app.innerHTML = setupView()
     return
@@ -656,11 +694,6 @@ function render() {
 
   if (state.view === 'game' && state.game) {
     app.innerHTML = gameView()
-    return
-  }
-
-  if (state.view === 'ending' && state.game?.finished) {
-    app.innerHTML = endingView()
     return
   }
 
