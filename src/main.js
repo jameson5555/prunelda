@@ -218,7 +218,7 @@ function beginTurn(game) {
     eventText: eventResult.text,
     eventAmount: eventResult.amount,
     canBet: true,
-    status: `${player.name}, enter the number of the property you wish to visit next.`,
+    status: `${player.name}, trade stocks, place one optional dice bet, then press Continue to end your turn.`,
   }
   game.currentTurnKey = `${game.month}-${player.id}`
 }
@@ -447,7 +447,7 @@ function setupView() {
         <form id="setup-form" class="setup-form">
           ${rows}
           <div class="setup-actions">
-            <button type="submit" class="hero-button">Begin Monthly Play</button>
+            <button type="submit" class="hero-button">Begin</button>
             <button type="button" class="hero-button ghost" data-action="back-title">Back</button>
           </div>
         </form>
@@ -613,15 +613,13 @@ function gameView() {
             ${marketTable(game, player)}
           </section>
           <section class="side-panel compact-actions retro-screen gameplay-panel">
-            <button class="hero-button secondary" data-action="save-quit">Quit And Continue Later</button>
-            <button class="hero-button ghost" data-action="restart-game">Start Over</button>
+            <button class="hero-button secondary" data-action="save-quit">Save</button>
+            <button class="hero-button ghost" data-action="restart-game">Restart</button>
           </section>
         </aside>
       </section>
 
-      <section class="retro-screen gameplay-panel">
-        ${logMarkup(game)}
-      </section>
+      ${logMarkup(game)}
     </main>
   `
 }

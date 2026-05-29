@@ -1,33 +1,34 @@
 :root {
   color-scheme: dark;
-  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
-  line-height: 1.45;
+  font-family: 'Courier New', Courier, monospace;
+  line-height: 1.4;
   color: var(--atari-white);
-  background: #020202;
+  background: var(--atari-black);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  --paper: #050b25;
-  --paper-strong: #08133f;
-  --paper-soft: #09112f;
-  --panel: rgba(5, 11, 37, 0.96);
-  --panel-strong: rgba(8, 19, 63, 0.98);
-  --panel-soft: rgba(9, 17, 47, 0.95);
-  --border: rgba(61, 116, 207, 0.45);
-  --border-strong: #3d74cf;
-  --accent: #12e9a1;
-  --accent-soft: #d8d8df;
-  --gold: #dca21a;
-  --mint: #12e9a1;
-  --ink-soft: rgba(216, 216, 223, 0.88);
-  --ink-faint: rgba(216, 216, 223, 0.66);
-  --shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
   --atari-black: #020202;
   --atari-green: #12e9a1;
   --atari-gold: #dca21a;
   --atari-white: #d8d8df;
-  --atari-blue: #3d74cf;
+  --screen-soft: #020202;
+  --screen-input: #020202;
+  --green-border: rgba(18, 233, 161, 0.25);
+  --green-border-soft: rgba(18, 233, 161, 0.16);
+  --green-border-strong: rgba(18, 233, 161, 0.42);
+  --panel: var(--atari-black);
+  --panel-strong: var(--screen-input);
+  --panel-soft: var(--screen-soft);
+  --border: var(--green-border);
+  --border-strong: var(--green-border-strong);
+  --accent: var(--atari-green);
+  --accent-soft: var(--atari-white);
+  --gold: var(--atari-gold);
+  --mint: var(--atari-green);
+  --ink-soft: var(--atari-white);
+  --ink-faint: rgba(216, 216, 223, 0.72);
+  --shadow: none;
 }
 
 * {
@@ -38,7 +39,10 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #020202;
+  background:
+    linear-gradient(rgba(18, 233, 161, 0.055) 1px, transparent 1px),
+    var(--atari-black);
+  background-size: 100% 4px;
 }
 
 button,
@@ -70,9 +74,9 @@ ul {
 }
 
 .game-shell {
-  width: min(1380px, 100%);
+  width: min(1320px, 100%);
   margin: 0 auto;
-  padding: 1rem;
+  padding: clamp(0.75rem, 2vw, 1.25rem);
 }
 
 .intro-shell,
@@ -101,7 +105,7 @@ ul {
 .holdings-panel,
 .side-panel,
 .log-panel {
-  border: 3px solid var(--border);
+  border: 2px solid var(--border);
   background: var(--panel);
   border-radius: 0;
   box-shadow: var(--shadow);
@@ -128,22 +132,25 @@ ul {
 }
 
 h1 {
-  font-size: clamp(1rem, 5vw, 2.5rem);
+  font-size: clamp(1.35rem, 4vw, 2.4rem);
   line-height: 1.04;
   margin-bottom: 0.6rem;
   color: var(--accent);
+  text-transform: uppercase;
 }
 
 h2 {
-  font-size: 1.05rem;
+  font-size: 1rem;
   color: var(--accent);
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 h3 {
-  font-size: 0.96rem;
+  font-size: 0.92rem;
   color: var(--accent);
   text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .hero-copy,
@@ -155,23 +162,18 @@ h3 {
 
 .retro-screen {
   position: relative;
-  background: #020202;
-  border: 0;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.05);
-  color: #f1f1f1;
-  font-family: 'Courier New', Courier, monospace;
+  background: var(--atari-black);
+  border: 2px solid var(--green-border);
+  box-shadow: inset 0 0 0 1px var(--green-border-soft);
+  color: var(--atari-white);
   text-transform: uppercase;
-}
-
-.retro-screen.focus-card {
-  box-shadow: inset 0 0 0 2px var(--atari-green);
 }
 
 .retro-screen::after {
   content: '';
   position: absolute;
-  inset: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  inset: 6px;
+  border: 1px solid var(--green-border-soft);
   pointer-events: none;
 }
 
@@ -186,8 +188,8 @@ h3 {
   align-content: center;
   justify-items: center;
   text-align: center;
-  padding: 2.5rem 1.5rem;
-  min-height: 560px;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  min-height: min(620px, calc(100vh - 2rem));
 }
 
 .title-marquee {
@@ -206,6 +208,7 @@ h3 {
 .marquee-big {
   color: var(--mint);
   line-height: 0.95;
+  letter-spacing: 0;
 }
 
 .marquee-mini {
@@ -221,6 +224,7 @@ h3 {
   color: var(--gold);
   font-size: clamp(3rem, 8vw, 6rem);
   margin-bottom: 1.25rem;
+  letter-spacing: 0;
 }
 
 .marquee-copy {
@@ -247,7 +251,7 @@ h3 {
 .title-footer p {
   color: var(--atari-white);
   font-size: 0.95rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  border-top: 1px solid var(--green-border);
   padding-top: 0.75rem;
 }
 
@@ -286,7 +290,7 @@ h3 {
   width: 100%;
   display: block;
   border: 2px solid var(--border);
-  background: white;
+  background: var(--atari-white);
 }
 
 .cover-portrait {
@@ -298,9 +302,8 @@ h3 {
 .ad-clipping {
   width: 100%;
   display: block;
-  border: 2px solid rgba(0, 0, 0, 0.12);
-  background: white;
-  transform: rotate(-4deg);
+  border: 2px solid var(--green-border);
+  background: var(--atari-white);
 }
 
 .hero-actions,
@@ -321,13 +324,19 @@ h3 {
 
 .hero-button,
 .count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
   border-radius: 0;
   border: 2px solid var(--atari-gold);
-  padding: 0.72rem 1rem;
+  padding: 0.62rem 0.9rem;
   background: var(--atari-black);
   color: var(--atari-gold);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  line-height: 1.1;
+  text-align: center;
 }
 
 .hero-button.secondary,
@@ -343,11 +352,12 @@ h3 {
 }
 
 .hero-button.small {
-  padding: 0.62rem 0.95rem;
+  min-height: 2.5rem;
+  padding: 0.52rem 0.85rem;
 }
 
 .retro-screen .hero-button {
-  min-width: 11rem;
+  min-width: 9.5rem;
 }
 
 .retro-screen .hero-button.secondary {
@@ -363,13 +373,13 @@ h3 {
 .count-pill.selected,
 .hero-button:hover,
 .count-pill:hover {
-  border-color: var(--atari-gold);
-  filter: brightness(0.96);
+  border-color: var(--green-border-strong);
+  color: var(--atari-green);
 }
 
 .hero-button:hover,
 .count-pill:hover {
-  background: #111111;
+  background: var(--atari-black);
 }
 
 .setup-form {
@@ -389,8 +399,8 @@ h3 {
 }
 
 .setup-screen-panel input {
-  background: #08133f;
-  border-color: rgba(61, 116, 207, 0.7);
+  background: var(--screen-input);
+  border-color: var(--green-border);
   color: var(--atari-white);
 }
 
@@ -407,11 +417,18 @@ h3 {
 input,
 select {
   width: 100%;
+  min-width: 0;
   border-radius: 0;
-  border: 2px solid rgba(47, 108, 203, 0.4);
+  border: 2px solid var(--green-border);
   background: var(--panel-strong);
   color: inherit;
-  padding: 0.7rem 0.8rem;
+  padding: 0.62rem 0.7rem;
+  line-height: 1.2;
+}
+
+select {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .play-shell {
@@ -426,20 +443,6 @@ select {
 .gameplay-panel {
   background: var(--atari-black);
   color: var(--atari-white);
-}
-
-.gameplay-panel h2,
-.gameplay-panel h3,
-.gameplay-shell .eyebrow,
-.gameplay-shell .market-id,
-.gameplay-shell .log-month {
-  color: var(--atari-green);
-}
-
-.gameplay-panel .headline,
-.gameplay-panel strong,
-.focus-card .turn-status {
-  color: var(--atari-gold);
 }
 
 .setup-screen-panel .count-pill,
@@ -474,10 +477,24 @@ select {
   color: var(--atari-white);
 }
 
+.gameplay-panel h2,
+.gameplay-panel h3,
+.gameplay-shell .eyebrow,
+.gameplay-shell .market-id,
+.gameplay-shell .log-month {
+  color: var(--atari-green);
+}
+
+.gameplay-panel .headline,
+.gameplay-panel strong,
+.focus-card .turn-status {
+  color: var(--atari-gold);
+}
+
 .gameplay-panel input,
 .gameplay-panel select {
-  background: #08133f;
-  border-color: rgba(61, 116, 207, 0.7);
+  background: var(--screen-input);
+  border-color: var(--green-border);
   color: var(--atari-white);
 }
 
@@ -487,15 +504,16 @@ select {
 .gameplay-panel .market-row,
 .gameplay-panel .masthead-stats div,
 .gameplay-panel .horatio-card {
-  background: #050b25;
-  border-color: rgba(61, 116, 207, 0.35);
+  background: var(--screen-soft);
+  border-color: var(--green-border);
 }
 
 .masthead-panel {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.9fr);
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
   gap: 1rem;
   padding: 1rem;
+  align-items: start;
 }
 
 .headline {
@@ -515,9 +533,10 @@ select {
 .ending-summary div,
 .horatio-card {
   border-radius: 0;
-  border: 2px solid rgba(47, 108, 203, 0.24);
+  border: 2px solid var(--green-border);
   background: var(--panel-soft);
   padding: 0.75rem;
+  min-width: 0;
 }
 
 .masthead-stats span,
@@ -540,14 +559,17 @@ select {
 
 .play-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(340px, 0.8fr);
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
   gap: 1rem;
+  align-items: start;
 }
 
 .main-panel,
 .rail-panel {
   display: grid;
   gap: 1rem;
+  align-content: start;
+  min-width: 0;
 }
 
 .turn-card,
@@ -564,7 +586,7 @@ select {
 
 .focus-card {
   padding: 1.2rem;
-  border: 2px solid var(--atari-green);
+  border: 2px solid var(--green-border-strong);
 }
 
 .focus-card .turn-event {
@@ -581,14 +603,35 @@ select {
 
 .action-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
   gap: 1rem;
+  align-items: start;
 }
 
 .action-card {
   padding: 0.9rem;
   display: grid;
   gap: 0.8rem;
+  align-content: start;
+  min-width: 0;
+}
+
+.action-card:nth-child(3) {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 22rem) auto;
+  align-items: end;
+}
+
+.action-card:nth-child(3) h3 {
+  grid-column: 1 / -1;
+}
+
+.action-card label {
+  min-width: 0;
+}
+
+.action-card .hero-button {
+  justify-self: start;
 }
 
 .holding-list,
@@ -602,14 +645,29 @@ select {
 .score-list li,
 .log-list li,
 .market-row {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.75rem;
-  align-items: center;
+  align-items: start;
   border-radius: 0;
   background: var(--panel-soft);
-  border: 1px solid rgba(47, 108, 203, 0.22);
+  border: 1px solid var(--green-border);
   padding: 0.7rem 0.75rem;
+  min-width: 0;
+}
+
+.holding-list li > span,
+.score-list li > span,
+.log-list li > span:not(.log-month),
+.market-row > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.holding-list li > strong,
+.score-list li > strong,
+.market-stats {
+  white-space: nowrap;
 }
 
 .ending-layout {
@@ -627,22 +685,21 @@ select {
 .win-banner {
   margin: 0;
   padding: 0.7rem 0.85rem;
-  border: 3px solid var(--border-strong);
-  font-family: 'Courier New', Courier, monospace;
+  border: 2px solid var(--border-strong);
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
 .win-banner.is-win {
-  background: #020202;
+  background: var(--atari-black);
   color: var(--gold);
 }
 
 .win-banner.is-loss {
-  background: #f4e3e3;
-  color: #8c2f2f;
-  border-color: #b85d5d;
+  background: var(--atari-black);
+  color: var(--atari-white);
+  border-color: var(--green-border);
 }
 
 .ending-art {
@@ -657,7 +714,7 @@ select {
 .market-table {
   display: grid;
   gap: 0.4rem;
-  max-height: 620px;
+  max-height: 419px;
   overflow: auto;
   padding-right: 0.15rem;
 }
@@ -666,11 +723,11 @@ select {
   display: grid;
   justify-items: end;
   gap: 0.12rem;
-  font-size: 0.88rem;
+  font-size: 0.84rem;
 }
 
 .log-list li {
-  justify-content: flex-start;
+  grid-template-columns: 2.75rem minmax(0, 1fr);
 }
 
 .log-month {
@@ -691,7 +748,6 @@ select {
 @media (max-width: 1180px) {
   .masthead-panel,
   .play-grid,
-  .action-grid,
   .ending-layout,
   .promo-visual {
     grid-template-columns: 1fr;
@@ -699,6 +755,18 @@ select {
 
   .market-table {
     max-height: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .action-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .action-card:nth-child(3) {
+    grid-template-columns: 1fr;
   }
 }
 
