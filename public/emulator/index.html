@@ -188,7 +188,7 @@
 
       function getKeyMapping(character) {
         if (character === ',') {
-          return { key: ',', code: 'Comma', keyCode: 44, charCode: 44, shiftKey: false }
+          return { key: ',', code: 'Comma', keyCode: 188, charCode: 44, shiftKey: false }
         }
 
         if (character === '\r') {
@@ -200,11 +200,11 @@
         }
 
         if (character === '"') {
-          return { key: '"', code: 'Quote', keyCode: 39, charCode: 34, shiftKey: true }
+          return { key: '"', code: 'Quote', keyCode: 222, charCode: 34, shiftKey: true }
         }
 
         if (character === ':') {
-          return { key: ':', code: 'Semicolon', keyCode: 59, charCode: 58, shiftKey: true }
+          return { key: ':', code: 'Semicolon', keyCode: 186, charCode: 58, shiftKey: true }
         }
 
         const upper = character.toUpperCase()
