@@ -560,19 +560,19 @@ select {
 
 .focus-card {
   padding: 1.2rem;
-  border: 2px solid rgba(255, 255, 255, 0.08);
+  border: 2px solid var(--atari-green);
 }
 
 .focus-card .turn-event {
-  font-size: clamp(1.2rem, 2.3vw, 1.85rem);
-  line-height: 1.35;
+  font-size: clamp(1.45rem, 2.8vw, 2.2rem);
+  line-height: 1.3;
   color: var(--atari-white);
 }
 
 .focus-card .turn-status {
-  font-size: clamp(1.35rem, 2.7vw, 2rem);
-  line-height: 1.32;
-  font-weight: 700;
+  font-size: clamp(0.98rem, 1.4vw, 1.15rem);
+  line-height: 1.45;
+  font-weight: 400;
 }
 
 .action-grid {
