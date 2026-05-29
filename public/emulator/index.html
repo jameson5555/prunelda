@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aunt Prunelda's Inheritance Player</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Georgia, 'Times New Roman', serif;
+        background: #0f0d12;
+        color: #e6decf;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background:
+          radial-gradient(circle at top, rgba(180, 141, 88, 0.28), transparent 34%),
+          linear-gradient(180deg, #1c161d, #0f0d12 42%, #09080c 100%);
+        touch-action: manipulation;
+      }
+
+      .masthead {
+        text-align: center;
+      }
+
+      .masthead h1 {
+        margin: 0;
+        font-size: clamp(1.4rem, 3vw, 2.2rem);
+        letter-spacing: 0.04em;
+      }
+
+      .masthead p {
+        margin: 0.35rem 0 0;
+        color: rgba(230, 222, 207, 0.72);
+      }
+
+      .frame {
+        width: min(100%, 980px);
+        border: 1px solid rgba(208, 183, 132, 0.35);
+        border-radius: 18px;
+        padding: 1rem;
+        background: rgba(12, 10, 15, 0.78);
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.4);
+      }
+
+      canvas.emscripten {
+        display: block;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        aspect-ratio: 4 / 3;
+        border: 0;
+        outline: none;
+        background: #000;
+      }
+
+      .status {
+        min-height: 1.5rem;
+        text-align: center;
+        color: rgba(230, 222, 207, 0.72);
+        font-size: 0.95rem;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+      }
+
+      button,
+      a.button {
+        border: 1px solid rgba(208, 183, 132, 0.45);
+        background: rgba(45, 32, 27, 0.9);
+        color: #f7efe1;
+        border-radius: 999px;
+        padding: 0.7rem 1rem;
+        font: inherit;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      button:hover,
+      a.button:hover {
+        background: rgba(83, 56, 47, 0.95);
+      }
+
+      .notes {
+        width: min(100%, 980px);
+        display: grid;
+        gap: 0.75rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .card {
+        border-radius: 16px;
+        padding: 1rem;
+        background: rgba(22, 18, 25, 0.84);
+        border: 1px solid rgba(208, 183, 132, 0.18);
+      }
+
+      .card h2 {
+        margin: 0 0 0.35rem;
+        font-size: 1rem;
+      }
+
+      .card p {
+        margin: 0;
+        color: rgba(230, 222, 207, 0.72);
+        line-height: 1.5;
+      }
+
+      #output,
+      #controls,
+      #progress,
+      #spinner {
+        display: none;
+      }
+
+      @media (max-width: 700px) {
+        body {
+          padding: 0.6rem;
+        }
+
+        .frame {
+          padding: 0.65rem;
+          border-radius: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="masthead">
+      <h1>Aunt Prunelda's Inheritance</h1>
+      <p>Browser player powered by jsA8E, adapted from AtariOnline.</p>
+    </header>
+
+    <main class="frame">
+      <canvas
+        class="emscripten"
+        id="canvas"
+        oncontextmenu="event.preventDefault()"
+        width="800"
+        height="600"
+        tabindex="0"
+      ></canvas>
+      <div class="status" id="status"></div>
+      <div class="toolbar">
+        <button id="reset-button" type="button">Reset Emulator</button>
+        <button id="fullscreen-button" type="button">Fullscreen</button>
+        <a class="button" href="../">Return to Prunelda</a>
+      </div>
+    </main>
+
+    <section class="notes">
+      <article class="card">
+        <h2>Keyboard</h2>
+        <p>Tap the game screen first. Use your keyboard inside the Atari session. F1-F5 map to the Atari console keys.</p>
+      </article>
+      <article class="card">
+        <h2>Mobile</h2>
+        <p>Fullscreen is recommended on phones and tablets. Touch keyboard support depends on your browser and the game's original input expectations.</p>
+      </article>
+      <article class="card">
+        <h2>Credits</h2>
+        <p>Emulator runtime: jsA8E by Sascha Springer, distributed via the AtariOnline project by eahumada.</p>
+      </article>
+    </section>
+
+    <textarea id="output" rows="4"></textarea>
+    <div id="controls"></div>
+    <progress value="0" max="0" id="progress"></progress>
+    <div id="spinner"></div>
+
+    <script>
+      const DEFAULT_DISK = 'prunelda.atr'
+
+      function getUrlParam(name) {
+        const params = new URLSearchParams(window.location.search)
+        return params.get(name) || ''
+      }
+
+      const diskFilename = decodeURIComponent(getUrlParam('disk_filename') || DEFAULT_DISK)
+      const statusElement = document.getElementById('status')
+      const progressElement = document.getElementById('progress')
+      const spinnerElement = document.getElementById('spinner')
+
+      var PACKAGE_NAME = './data/A8E.data'
+
+      function performDataRequests(DataRequest) {
+        new DataRequest(0, 8192, 0, 0).open('GET', 'data/ATARIBAS.ROM')
+        new DataRequest(8192, 24576, 0, 0).open('GET', 'data/ATARIXL.ROM')
+        new DataRequest(24576, 116752, 0, 0).open('GET', 'data/' + diskFilename)
+      }
+
+      function performDataRequestLoads(DataRequest) {
+        DataRequest.prototype.requests['data/ATARIBAS.ROM'].onload()
+        DataRequest.prototype.requests['data/ATARIXL.ROM'].onload()
+        DataRequest.prototype.requests['data/' + diskFilename].onload()
+      }
+
+      var Module = {
+        preRun: [],
+        postRun: [],
+        canvas: document.getElementById('canvas'),
+        arguments: ['data/' + diskFilename],
+        print: (function () {
+          const element = document.getElementById('output')
+          element.value = ''
+          return function (text) {
+            element.value += Array.prototype.slice.call(arguments).join(' ') + '\n'
+            element.scrollTop = element.scrollHeight
+          }
+        })(),
+        printErr: function (text) {
+          console.log(Array.prototype.slice.call(arguments).join(' '))
+        },
+        setStatus: function (text) {
+          if (!text) {
+            statusElement.textContent = ''
+            return
+          }
+          const match = text.match(/([^(]+)\((\d+(?:\.\d+)?)\/(\d+)\)/)
+          if (match) {
+            progressElement.value = parseInt(match[2], 10) * 100
+            progressElement.max = parseInt(match[3], 10) * 100
+          }
+          statusElement.textContent = text
+          spinnerElement.hidden = !text
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function (left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left)
+          Module.setStatus(
+            left
+              ? 'Preparing emulator... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')'
+              : 'Game loaded. Click the screen to play.'
+          )
+        },
+      }
+
+      Module.setStatus('Downloading emulator...')
+
+      document.getElementById('reset-button').addEventListener('click', () => {
+        window.location.reload()
+      })
+
+      document.getElementById('fullscreen-button').addEventListener('click', () => {
+        const canvas = document.getElementById('canvas')
+        if (canvas.requestFullscreen) {
+          canvas.requestFullscreen()
+        }
+      })
+    </script>
+    <script async type="text/javascript" src="js/A8E.js"></script>
+  </body>
+</html>

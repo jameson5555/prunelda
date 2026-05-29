@@ -1,0 +1,250 @@
+:root {
+  color-scheme: dark;
+  font-family: Georgia, 'Times New Roman', serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #eadfcf;
+  background:
+    radial-gradient(circle at top, rgba(163, 114, 46, 0.28), transparent 30%),
+    linear-gradient(180deg, #271b22 0%, #160f15 38%, #0c0a0e 100%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --panel: rgba(22, 15, 20, 0.86);
+  --panel-strong: rgba(14, 10, 13, 0.92);
+  --border: rgba(211, 178, 121, 0.24);
+  --ink-soft: rgba(234, 223, 207, 0.75);
+  --accent: #d7b174;
+  --accent-strong: #f1d09a;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+a,
+button {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+h1,
+h2,
+p,
+dl,
+dt,
+dd {
+  margin: 0;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.page-shell {
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1rem 0 2.5rem;
+}
+
+.hero-panel,
+.player-panel,
+.provenance-panel {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+}
+
+.hero-panel {
+  border-radius: 28px;
+  padding: clamp(1.25rem, 3vw, 3rem);
+  display: grid;
+  gap: 1.25rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.hero-panel::after {
+  content: '';
+  position: absolute;
+  inset: auto -10% -30% auto;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(215, 177, 116, 0.2), transparent 68%);
+  pointer-events: none;
+}
+
+.eyebrow {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  color: var(--accent);
+}
+
+.hero-panel h1 {
+  font-size: clamp(2.6rem, 8vw, 5.2rem);
+  line-height: 0.96;
+  max-width: 10ch;
+}
+
+.lede {
+  max-width: 60ch;
+  font-size: 1.1rem;
+  color: var(--ink-soft);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+
+.button-primary,
+.button-secondary {
+  border-radius: 999px;
+  padding: 0.85rem 1.25rem;
+  border: 1px solid rgba(241, 208, 154, 0.45);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.button-primary {
+  text-decoration: none;
+  color: #20150f;
+  background: linear-gradient(135deg, #f1d09a, #c79249);
+}
+
+.button-secondary {
+  color: #f7eddc;
+  background: rgba(63, 42, 30, 0.84);
+}
+
+.button-primary:hover,
+.button-secondary:hover {
+  transform: translateY(-1px);
+}
+
+.facts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.facts-grid div {
+  border-radius: 18px;
+  padding: 1rem;
+  background: rgba(12, 9, 12, 0.45);
+  border: 1px solid rgba(211, 178, 121, 0.12);
+}
+
+.facts-grid dt {
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.35rem;
+}
+
+.facts-grid dd {
+  color: var(--ink-soft);
+}
+
+.player-panel {
+  border-radius: 28px;
+  margin-top: 1.25rem;
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.player-frame {
+  background: var(--panel-strong);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(211, 178, 121, 0.12);
+}
+
+.player-frame iframe {
+  display: block;
+  width: 100%;
+  min-height: 720px;
+  border: 0;
+  background: #000;
+}
+
+.player-notes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.player-notes article,
+.provenance-panel > div {
+  border-radius: 18px;
+  background: rgba(10, 9, 12, 0.54);
+  border: 1px solid rgba(211, 178, 121, 0.12);
+  padding: 1rem;
+}
+
+.player-notes h2,
+.provenance-panel h2 {
+  margin-bottom: 0.45rem;
+  font-size: 1rem;
+}
+
+.player-notes p,
+.provenance-panel p {
+  color: var(--ink-soft);
+}
+
+.provenance-panel {
+  border-radius: 28px;
+  margin-top: 1.25rem;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 960px) {
+  .page-shell {
+    width: min(100%, calc(100% - 1rem));
+    padding-top: 0.5rem;
+  }
+
+  .facts-grid,
+  .player-notes,
+  .provenance-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .player-frame iframe {
+    min-height: 620px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-panel,
+  .player-panel,
+  .provenance-panel {
+    border-radius: 20px;
+  }
+
+  .hero-panel h1 {
+    max-width: none;
+  }
+
+  .player-frame iframe {
+    min-height: 540px;
+  }
+}
