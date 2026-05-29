@@ -1,5 +1,9 @@
-local SAVE_PATH = "/emulator/prunelda-save.atr"
 local SAVE_DRIVE = "flop2"
+local SAVE_PATHS = {
+  "prunelda-save.atr",
+  "/prunelda-save.atr",
+  "/emulator/prunelda-save.atr",
+}
 
 local function find_save_drive()
   for _, image in pairs(manager.machine.images) do
@@ -30,16 +34,25 @@ local function ensure_save_disk()
     image:unload()
   end
 
-  local error_message
-  if file_exists(SAVE_PATH) then
-    error_message = image:load(SAVE_PATH)
-  else
-    error_message = image:create(SAVE_PATH)
+  local error_message = nil
+
+  for _, path in ipairs(SAVE_PATHS) do
+    if file_exists(path) then
+      error_message = image:load(path)
+      if not error_message then
+        return
+      end
+    end
   end
 
-  if error_message then
-    print("Prunelda save disk error: " .. error_message)
+  for _, path in ipairs(SAVE_PATHS) do
+    error_message = image:create(path)
+    if not error_message then
+      return
+    end
   end
+
+  print("Prunelda save disk error: " .. error_message)
 end
 
 ensure_save_disk()
