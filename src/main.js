@@ -13,7 +13,6 @@ const app = document.querySelector('#app')
 
 const state = {
   view: 'title',
-  printerChoice: null,
   setupCount: 1,
   setupNames: ['', '', '', ''],
   game: loadGame(),
@@ -111,7 +110,6 @@ function createGame() {
     .map((name, index) => createPlayer(name || `Player ${index + 1}`, index))
 
   const game = {
-    printerChoice: state.printerChoice,
     month: 1,
     monthsTotal: 12,
     activePlayerIndex: 0,
@@ -391,29 +389,26 @@ function handleBet(formData) {
 
 function titleView() {
   const continueButton = state.game
-    ? '<button class="hero-button secondary" data-action="continue-game">Continue From This Point</button>'
+    ? '<button class="hero-button secondary" data-action="continue-game">Continue Game</button>'
     : ''
 
   return `
-    <main class="game-shell intro-shell">
-      <section class="hero-panel">
-        <p class="eyebrow">Jack Eastman, 1984</p>
+    <main class="game-shell intro-shell retro-screen">
+      <section class="hero-panel title-panel">
+        <p class="eyebrow">Copyright 1984 by Jack Eastman</p>
         <h1>Aunt Prunelda&apos;s Inheritance</h1>
-        <p class="hero-copy">Aunt Prunelda has recently passed on to a greater glory. Your task is to out-invest the family, survive twelve months of absurd fortunes and setbacks, and prove you deserve her final windfall.</p>
+        <p class="screen-rule">A business inheritance simulation</p>
+        <p class="hero-copy">Aunt Prunelda has passed on to a greater glory. Out-invest the family, survive twelve absurd months of fortune and scandal, and finish richer than Cousin Horatio.</p>
         <div class="hero-actions">
           <button class="hero-button" data-action="begin-setup">Start New Game</button>
           ${continueButton}
-          ${state.game ? '<button class="hero-button ghost" data-action="clear-save">Forget Saved Game</button>' : ''}
+          ${state.game ? '<button class="hero-button ghost" data-action="clear-save">Clear Save</button>' : ''}
         </div>
-      </section>
-      <section class="question-panel">
-        <h2>Printer Selection</h2>
-        <p>Do you have a printer which you wish to use in playing the game?</p>
-        <div class="toggle-row">
-          <button class="toggle-button ${state.printerChoice === 'Y' ? 'selected' : ''}" data-action="printer-yes">Yes</button>
-          <button class="toggle-button ${state.printerChoice === 'N' ? 'selected' : ''}" data-action="printer-no">No</button>
+        <div class="title-notes">
+          <p>1 to 4 players</p>
+          <p>26 businesses</p>
+          <p>12 monthly turns</p>
         </div>
-        <p class="fine-print">The web remake does not use a printer, but keeps the original opening prompt as part of the setup flow.</p>
       </section>
     </main>
   `
@@ -424,17 +419,17 @@ function setupView() {
     const enabled = index < state.setupCount
     return `
       <label class="setup-row ${enabled ? '' : 'disabled'}">
-        <span>${index === 0 ? 'Player #1, what is your name?' : `Player #${index + 1} name`}</span>
+        <span>${index === 0 ? 'PLAYER #1, WHAT IS YOUR NAME?' : `PLAYER #${index + 1} NAME`}</span>
         <input type="text" name="player-${index}" value="${state.setupNames[index] || ''}" ${enabled ? '' : 'disabled'} maxlength="24" />
       </label>
     `
   }).join('')
 
   return `
-    <main class="game-shell setup-shell">
+    <main class="game-shell setup-shell retro-screen">
       <section class="setup-panel">
         <h1>Set Up Player Files</h1>
-        <p>How many will be playing (1-4)?</p>
+        <p class="screen-rule">HOW MANY WILL BE PLAYING (1-4)?</p>
         <div class="count-row">
           ${[1, 2, 3, 4].map((count) => `
             <button class="count-pill ${state.setupCount === count ? 'selected' : ''}" data-action="player-count" data-count="${count}">${count}</button>
@@ -456,7 +451,7 @@ function holdingsMarkup(game, player) {
   const map = businessMap(game)
   const entries = Object.entries(player.holdings)
   if (!entries.length) {
-    return '<p class="empty-note">No holdings yet.</p>'
+    return '<p class="empty-note">NO HOLDINGS YET.</p>'
   }
 
   return `
@@ -479,7 +474,6 @@ function marketTable(game, player) {
           <article class="market-row">
             <div>
               <p class="market-id">${business.id}. ${business.name}</p>
-              <p class="market-sector">${business.sector}</p>
             </div>
             <div class="market-stats">
               <span>${formatMoney(business.price)}</span>
@@ -529,7 +523,7 @@ function gameView() {
   const netWorth = playerNetWorth(game, player)
 
   return `
-    <main class="game-shell play-shell">
+    <main class="game-shell play-shell retro-screen">
       <section class="masthead-panel">
         <div>
           <p class="eyebrow">Month ${game.month} of ${game.monthsTotal}</p>
@@ -629,7 +623,7 @@ function endingView() {
 
   return `
     <main class="game-shell ending-shell">
-      <section class="hero-panel ending-panel">
+      <section class="hero-panel ending-panel retro-screen">
         <p class="eyebrow">Routines For Game End</p>
         <h1>${outcome.beatHoratio ? 'Aunt Prunelda Would Be Very Pleased!' : 'Aunt Prunelda Would Be Disappointed!'}</h1>
         <p class="hero-copy">
@@ -684,10 +678,6 @@ app.addEventListener('click', (event) => {
     state.view = 'setup'
   } else if (action === 'back-title') {
     state.view = 'title'
-  } else if (action === 'printer-yes') {
-    state.printerChoice = 'Y'
-  } else if (action === 'printer-no') {
-    state.printerChoice = 'N'
   } else if (action === 'player-count') {
     state.setupCount = Number(target.dataset.count)
   } else if (action === 'continue-game' && state.game) {
