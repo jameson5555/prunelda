@@ -79,6 +79,10 @@
         margin-top: 0.5rem;
       }
 
+      .status.is-actionable {
+        color: rgba(241, 208, 154, 0.92);
+      }
+
       button,
       a.button {
         border: 1px solid rgba(208, 183, 132, 0.45);
@@ -139,9 +143,9 @@
   <body>
     <main class="frame">
       <div class="toolbar">
-        <div class="toolbar-meta">F1 Help, F2 Start, F3 Select, F4 Option</div>
+        <div class="toolbar-meta">Game boots automatically. F1 Help, F2 Start, F3 Select, F4 Option.</div>
         <div class="toolbar-actions">
-          <button id="mute-button" type="button">Mute</button>
+          <button id="mute-button" type="button">Sound Off</button>
           <button id="reset-button" type="button">Reset</button>
           <button id="fullscreen-button" type="button">Fullscreen</button>
           <a class="button" href="../">Back</a>
@@ -149,7 +153,7 @@
       </div>
       <canvas id="canvas" oncontextmenu="event.preventDefault()" width="672" height="450" tabindex="0"></canvas>
       <div class="status" id="status"></div>
-      <div class="controls-note">Arrow keys move. Left Option fires. Symbols follow the Atari keyboard layout.</div>
+      <div class="controls-note">Arrow keys move. Left Option fires. If your browser blocks startup, click the game screen once.</div>
     </main>
 
     <textarea id="output" rows="4"></textarea>
@@ -165,7 +169,9 @@
       const AUTO_ADVANCE_KEY = ' '
       const AUTO_ADVANCE_DELAY_SECONDS = '8'
       const statusElement = document.getElementById('status')
+      const muteButton = document.getElementById('mute-button')
       let emulator
+      let isMuted = true
 
       function getUrlParam(name) {
         const params = new URLSearchParams(window.location.search)
@@ -178,8 +184,22 @@
         statusElement.textContent = text
       }
 
+      function setActionableStatus(text) {
+        statusElement.textContent = text
+        statusElement.classList.add('is-actionable')
+      }
+
+      function clearStatus() {
+        statusElement.textContent = ''
+        statusElement.classList.remove('is-actionable')
+      }
+
+      function updateMuteButton() {
+        muteButton.textContent = isMuted ? 'Sound Off' : 'Sound On'
+      }
+
       function bootEmulator() {
-        setStatus('Loading emulator...')
+        setActionableStatus('Loading game...')
 
         const mountDisk = JSMESSLoader.mountFile(
           'disk1.atr',
@@ -212,13 +232,21 @@
           )
         )
 
+        emulator.mute()
         emulator.start({ waitAfterDownloading: true })
-        window.setTimeout(() => setStatus(''), 2000)
+        window.setTimeout(() => clearStatus(), 2500)
+        window.setTimeout(() => {
+          if (statusElement.textContent === '') {
+            setActionableStatus('If the game has not appeared yet, click the screen once.')
+          }
+        }, 6000)
       }
 
-      document.getElementById('mute-button').addEventListener('click', () => {
+      muteButton.addEventListener('click', () => {
         if (emulator) {
           emulator.toggleMute()
+          isMuted = !isMuted
+          updateMuteButton()
         }
       })
 
@@ -233,6 +261,7 @@
         }
       })
 
+      updateMuteButton()
       bootEmulator()
     </script>
   </body>
