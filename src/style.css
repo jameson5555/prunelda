@@ -3,9 +3,7 @@
   font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
   line-height: 1.45;
   color: var(--atari-white);
-  background:
-    radial-gradient(circle at top, rgba(61, 116, 207, 0.18), transparent 24%),
-    linear-gradient(180deg, #08133f 0%, #04091f 45%, #020202 100%);
+  background: #020202;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -40,9 +38,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top, rgba(61, 116, 207, 0.18), transparent 24%),
-    linear-gradient(180deg, #08133f 0%, #04091f 45%, #020202 100%);
+  background: #020202;
 }
 
 button,
@@ -322,24 +318,24 @@ h3 {
 .hero-button,
 .count-pill {
   border-radius: 0;
-  border: 2px solid var(--border-strong);
+  border: 2px solid var(--atari-gold);
   padding: 0.72rem 1rem;
-  background: var(--accent);
-  color: white;
+  background: var(--atari-black);
+  color: var(--atari-gold);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 .hero-button.secondary,
 .count-pill {
-  background: #0d1b52;
-  color: var(--atari-white);
+  background: var(--atari-black);
+  color: var(--atari-gold);
 }
 
 .hero-button.ghost {
-  background: transparent;
-  border-color: rgba(255, 255, 255, 0.35);
-  color: var(--atari-white);
+  background: var(--atari-black);
+  border-color: var(--atari-gold);
+  color: var(--atari-gold);
 }
 
 .hero-button.small {
@@ -351,25 +347,25 @@ h3 {
 }
 
 .retro-screen .hero-button.secondary {
-  background: white;
-  color: var(--atari-blue);
+  background: var(--atari-black);
+  color: var(--atari-gold);
 }
 
 .retro-screen .hero-button.ghost {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--atari-white);
+  background: var(--atari-black);
+  color: var(--atari-gold);
 }
 
 .count-pill.selected,
 .hero-button:hover,
 .count-pill:hover {
-  border-color: var(--accent);
+  border-color: var(--atari-gold);
   filter: brightness(0.96);
 }
 
 .hero-button:hover,
 .count-pill:hover {
-  background: #1740a3;
+  background: #111111;
 }
 
 .setup-form {
@@ -445,22 +441,22 @@ select {
 .setup-screen-panel .count-pill,
 .setup-screen-panel .hero-button,
 .ending-panel .hero-button {
-  background: #1130ba;
-  color: var(--atari-white);
-  border-color: rgba(216, 216, 223, 0.35);
+  background: var(--atari-black);
+  color: var(--atari-gold);
+  border-color: var(--atari-gold);
 }
 
 .setup-screen-panel .hero-button.secondary,
 .setup-screen-panel .count-pill.selected,
 .ending-panel .hero-button.secondary {
-  background: white;
-  color: var(--atari-blue);
+  background: var(--atari-black);
+  color: var(--atari-gold);
 }
 
 .setup-screen-panel .hero-button.ghost,
 .ending-panel .hero-button.ghost {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--atari-white);
+  background: var(--atari-black);
+  color: var(--atari-gold);
 }
 
 .gameplay-panel .headline-blurb,
