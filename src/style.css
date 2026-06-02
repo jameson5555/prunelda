@@ -377,9 +377,21 @@ h3 {
   color: var(--atari-green);
 }
 
+.count-pill.selected {
+  background: var(--atari-gold);
+  border-color: var(--atari-gold);
+  color: var(--atari-black);
+}
+
 .hero-button:hover,
 .count-pill:hover {
   background: var(--atari-black);
+}
+
+.count-pill.selected:hover {
+  background: var(--atari-gold);
+  border-color: var(--atari-gold);
+  color: var(--atari-black);
 }
 
 .setup-form {
@@ -454,10 +466,15 @@ select {
 }
 
 .setup-screen-panel .hero-button.secondary,
-.setup-screen-panel .count-pill.selected,
 .ending-panel .hero-button.secondary {
   background: var(--atari-black);
   color: var(--atari-gold);
+}
+
+.setup-screen-panel .count-pill.selected {
+  background: var(--atari-gold);
+  border-color: var(--atari-gold);
+  color: var(--atari-black);
 }
 
 .setup-screen-panel .hero-button.ghost,
@@ -680,6 +697,8 @@ select {
 .ending-copy {
   display: grid;
   gap: 0.9rem;
+  position: relative;
+  z-index: 1;
 }
 
 .win-banner {
@@ -704,11 +723,55 @@ select {
 
 .ending-art {
   display: grid;
+  min-width: 0;
+  position: relative;
+  z-index: 0;
 }
 
 .ending-portrait {
   height: 100%;
   min-height: 420px;
+  pointer-events: none;
+}
+
+.headline-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--atari-black) 78%, transparent);
+}
+
+.headline-modal {
+  width: min(100%, 40rem);
+  display: grid;
+  gap: 1rem;
+  padding: 1.1rem;
+  box-shadow: 0 0 0 2px var(--atari-black), 0 1.2rem 3rem rgba(0, 0, 0, 0.45);
+}
+
+.headline-modal .eyebrow {
+  color: var(--atari-green);
+}
+
+.headline-modal-title {
+  margin: 0;
+  color: var(--atari-gold);
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  line-height: 1.15;
+}
+
+.headline-modal-copy {
+  margin: 0;
+  color: var(--atari-white);
+  line-height: 1.5;
+}
+
+.headline-modal-actions {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .market-table {
@@ -796,12 +859,39 @@ select {
   }
 
   .hero-actions,
-  .count-row,
   .setup-actions,
   .compact-actions,
   .panel-heading {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .count-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  .count-pill {
+    flex: 1 1 calc(25% - 0.75rem);
+    min-width: 3.4rem;
+  }
+
+  .headline-modal-backdrop {
+    padding: 0.75rem;
+  }
+
+  .headline-modal {
+    width: 100%;
+  }
+
+  .headline-modal-actions {
+    justify-content: stretch;
+  }
+
+  .headline-modal-actions .hero-button {
+    width: 100%;
   }
 
   .retro-screen .hero-button {

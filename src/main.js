@@ -43,18 +43,33 @@ function normalizeSavedGame(game) {
     return false
   }
 
+  let updated = false
   const player = currentPlayer(game)
   if (!player) {
     return false
   }
 
   const oldInstruction = `${player.name}, enter the number of the property you wish to visit next.`
-  if (game.currentTurn.status !== oldInstruction) {
-    return false
+  if (game.currentTurn.status === oldInstruction) {
+    game.currentTurn.status = turnInstruction(player)
+    updated = true
   }
 
-  game.currentTurn.status = turnInstruction(player)
-  return true
+  if (!game.headlineModal || typeof game.headlineModal !== 'object') {
+    game.headlineModal = {
+      month: game.month,
+      dismissed: false,
+    }
+    updated = true
+  }
+
+  syncHeadlineModal(game)
+  if (game.headlineModal.month !== game.month) {
+    game.headlineModal.month = game.month
+    updated = true
+  }
+
+  return updated
 }
 
 function turnInstruction(player) {
@@ -98,6 +113,55 @@ function formatPercent(value) {
 
 function businessMap(game) {
   return new Map(game.businesses.map((business) => [business.id, business]))
+}
+
+function sellableBusinesses(game, player) {
+  const map = businessMap(game)
+
+  return Object.entries(player.holdings)
+    .map(([id, shares]) => ({
+      business: map.get(Number(id)),
+      shares,
+    }))
+    .filter((entry) => entry.business && entry.shares > 0)
+    .sort((left, right) => left.business.id - right.business.id)
+}
+
+function syncHeadlineModal(game) {
+  if (!game) {
+    return
+  }
+
+  if (!game.headlineModal || typeof game.headlineModal !== 'object') {
+    game.headlineModal = {
+      month: game.month,
+      dismissed: false,
+    }
+    return
+  }
+
+  if (game.headlineModal.month !== game.month) {
+    game.headlineModal = {
+      month: game.month,
+      dismissed: false,
+    }
+  }
+}
+
+function isHeadlineModalOpen(game) {
+  syncHeadlineModal(game)
+  return Boolean(game?.headline && !game.headlineModal.dismissed)
+}
+
+function dismissHeadlineModal() {
+  if (!state.game) {
+    return
+  }
+
+  syncHeadlineModal(state.game)
+  state.game.headlineModal.dismissed = true
+  saveGame()
+  render()
 }
 
 function currentPlayer(game) {
@@ -154,6 +218,10 @@ function createGame() {
     currentTurn: null,
     currentTurnKey: null,
     log: [],
+    headlineModal: {
+      month: 1,
+      dismissed: false,
+    },
     finished: false,
     outcome: null,
   }
@@ -283,6 +351,10 @@ function startMonth(game, firstMonth = false) {
   game.activePlayerIndex = 0
   game.primeRate = sample(PRIME_RATES)
   game.headline = sample(HEADLINES)
+  game.headlineModal = {
+    month: game.month,
+    dismissed: false,
+  }
   applyMarketForMonth(game, game.headline)
   game.horatioNetWorth = clamp(
     Math.round(game.horatioNetWorth * (1 + ((Math.random() * 0.14) - 0.05)) + game.headline.horatioDelta),
@@ -554,10 +626,32 @@ function logMarkup(game) {
   `
 }
 
+function headlineModalMarkup(game) {
+  if (!isHeadlineModalOpen(game)) {
+    return ''
+  }
+
+  return `
+    <div class="headline-modal-backdrop" data-headline-modal-backdrop="true">
+      <section class="headline-modal retro-screen gameplay-panel" data-headline-modal-panel="true" role="dialog" aria-modal="true" aria-labelledby="headline-modal-title">
+        <p class="eyebrow">Monthly News Bulletin</p>
+        <h2 id="headline-modal-title" class="headline-modal-title">${game.headline.text}</h2>
+        <p class="headline-modal-copy">${game.headline.blurb}</p>
+        <div class="headline-modal-actions">
+          <button class="hero-button secondary" type="button" data-action="dismiss-headline-modal">Continue To Trading</button>
+        </div>
+      </section>
+    </div>
+  `
+}
+
 function gameView() {
   const game = state.game
   const player = currentPlayer(game)
   const netWorth = playerNetWorth(game, player)
+  const ownedBusinesses = sellableBusinesses(game, player)
+  const canSell = ownedBusinesses.length > 0
+  const reviewMode = game.finished
 
   return `
     <main class="game-shell play-shell gameplay-shell">
@@ -579,14 +673,14 @@ function gameView() {
       <section class="play-grid">
         <section class="main-panel">
           <div class="turn-card retro-screen focus-card">
-            <h2>Game Play Routine</h2>
+            <h2>${reviewMode ? 'Final Turn Summary' : 'Current Turn'}</h2>
             <p class="turn-event">${game.currentTurn.eventText}</p>
-            <p class="turn-status">${game.currentTurn.status}</p>
+            <p class="turn-status">${reviewMode ? 'Review the final standings and monthly headlines below.' : game.currentTurn.status}</p>
           </div>
 
           <div class="action-grid">
             <form id="buy-form" class="action-card retro-screen gameplay-panel">
-              <h3>Stock Purchase Routine</h3>
+              <h3>Buy Shares</h3>
               <label>
                 <span>Business</span>
                 <select name="businessId">
@@ -597,22 +691,24 @@ function gameView() {
                 <span>Quantity</span>
                 <input type="number" name="quantity" min="1" value="1" />
               </label>
-              <button type="submit" class="hero-button small">Buy</button>
+              <button type="submit" class="hero-button small" ${reviewMode ? 'disabled' : ''}>Buy</button>
             </form>
 
             <form id="sell-form" class="action-card retro-screen gameplay-panel">
-              <h3>Stock Sales Routine</h3>
+              <h3>Sell Shares</h3>
               <label>
                 <span>Business</span>
-                <select name="businessId">
-                  ${game.businesses.map((business) => `<option value="${business.id}">${business.id}. ${business.name}</option>`).join('')}
+                <select name="businessId" ${canSell ? '' : 'disabled'}>
+                  ${canSell
+                    ? ownedBusinesses.map(({ business, shares }) => `<option value="${business.id}">${business.id}. ${business.name} (${shares} owned)</option>`).join('')
+                    : '<option value="">No holdings to sell</option>'}
                 </select>
               </label>
               <label>
                 <span>Quantity</span>
-                <input type="number" name="quantity" min="1" value="1" />
+                <input type="number" name="quantity" min="1" value="1" ${canSell ? '' : 'disabled'} />
               </label>
-              <button type="submit" class="hero-button small secondary">Sell</button>
+              <button type="submit" class="hero-button small secondary" ${(canSell && !reviewMode) ? '' : 'disabled'}>Sell</button>
             </form>
 
             <form id="bet-form" class="action-card retro-screen gameplay-panel">
@@ -621,14 +717,14 @@ function gameView() {
                 <span>Your bet is</span>
                 <input type="number" name="bet" min="1" max="${Math.max(1, Math.floor(player.cash))}" value="1000" />
               </label>
-              <button type="submit" class="hero-button small ghost" ${game.currentTurn.canBet ? '' : 'disabled'}>${game.currentTurn.canBet ? 'Roll Dice' : 'Bet Placed'}</button>
+              <button type="submit" class="hero-button small ghost" ${(game.currentTurn.canBet && !reviewMode) ? '' : 'disabled'}>${reviewMode ? 'Game Complete' : game.currentTurn.canBet ? 'Roll Dice' : 'Bet Placed'}</button>
             </form>
           </div>
 
           <section class="holdings-panel retro-screen gameplay-panel">
             <div class="panel-heading">
               <h2>${player.name}&apos;s Current Holdings</h2>
-              <button class="hero-button small secondary" data-action="end-turn">Press To Continue</button>
+              <button class="hero-button small secondary" data-action="end-turn" ${reviewMode ? 'disabled' : ''}>Press To Continue</button>
             </div>
             ${holdingsMarkup(game, player)}
           </section>
@@ -648,6 +744,7 @@ function gameView() {
       </section>
 
       ${logMarkup(game)}
+      ${headlineModalMarkup(game)}
     </main>
   `
 }
@@ -663,7 +760,7 @@ function endingView() {
       <section class="hero-panel ending-panel retro-screen gameplay-panel">
         <div class="ending-layout">
           <div class="ending-copy">
-            <p class="eyebrow">Routines For Game End</p>
+            <p class="eyebrow">Final Results</p>
             <p class="win-banner ${outcome.beatHoratio ? 'is-win' : 'is-loss'}">${outcome.beatHoratio ? 'You&apos;ve Won Aunt Prunelda&apos;s Fortune!' : 'Cousin Horatio Wins This Round'}</p>
             <h1>${outcome.beatHoratio ? 'Aunt Prunelda Would Be Very Pleased!' : 'Aunt Prunelda Would Be Disappointed!'}</h1>
             <p class="hero-copy">
@@ -679,7 +776,7 @@ function endingView() {
             </div>
             <div class="hero-actions">
               <button class="hero-button" data-action="begin-setup">Play Again</button>
-              <button class="hero-button secondary" data-action="continue-game">Review Game</button>
+              <button class="hero-button secondary" data-action="review-finished-game">Review Game</button>
               <button class="hero-button ghost" data-action="clear-save">Clear Save</button>
             </div>
           </div>
@@ -694,7 +791,7 @@ function endingView() {
 }
 
 function render() {
-  if (state.game?.finished) {
+  if (state.view === 'ending' && state.game?.finished) {
     app.innerHTML = endingView()
     return
   }
@@ -713,6 +810,11 @@ function render() {
 }
 
 app.addEventListener('click', (event) => {
+  if (event.target instanceof Element && event.target.hasAttribute('data-headline-modal-backdrop')) {
+    dismissHeadlineModal()
+    return
+  }
+
   const target = event.target.closest('[data-action]')
   if (!target) {
     return
@@ -723,10 +825,15 @@ app.addEventListener('click', (event) => {
     state.view = 'setup'
   } else if (action === 'back-title') {
     state.view = 'title'
+  } else if (action === 'dismiss-headline-modal') {
+    dismissHeadlineModal()
+    return
   } else if (action === 'player-count') {
     state.setupCount = Number(target.dataset.count)
   } else if (action === 'continue-game' && state.game) {
     state.view = state.game.finished ? 'ending' : 'game'
+  } else if (action === 'review-finished-game' && state.game?.finished) {
+    state.view = 'game'
   } else if (action === 'clear-save') {
     clearSavedGame()
     state.view = 'title'
