@@ -776,7 +776,6 @@ function endingView() {
             </div>
             <div class="hero-actions">
               <button class="hero-button" data-action="begin-setup">Play Again</button>
-              <button class="hero-button secondary" data-action="review-finished-game">Review Game</button>
               <button class="hero-button ghost" data-action="clear-save">Clear Save</button>
             </div>
           </div>
