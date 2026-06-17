@@ -1043,9 +1043,51 @@ select {
     border-radius: 0;
   }
 
-  .masthead-stats,
   .ending-summary {
     grid-template-columns: 1fr;
+  }
+
+  .masthead-panel {
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .masthead-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+  }
+
+  .masthead-stats div {
+    padding: 0.5rem;
+  }
+
+  .masthead-stats span {
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+  }
+
+  .masthead-stats strong {
+    margin-top: 0.2rem;
+    font-size: clamp(0.82rem, 3.4vw, 1rem);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+
+  .focus-card {
+    padding: 0.9rem;
+  }
+
+  .focus-card .turn-event {
+    font-size: clamp(1.18rem, 5vw, 1.55rem);
+  }
+
+  .turn-card,
+  .action-card,
+  .holdings-panel,
+  .strategy-panel,
+  .side-panel,
+  .log-panel {
+    padding: 0.75rem;
   }
 
   .title-footer {
@@ -1054,10 +1096,19 @@ select {
 
   .hero-actions,
   .setup-actions,
-  .compact-actions,
   .panel-heading {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .compact-actions {
+    flex-wrap: nowrap;
+    gap: 0.55rem;
+  }
+
+  .compact-actions .hero-button {
+    flex: 1 1 0;
+    width: auto;
   }
 
   .count-row {
@@ -1091,6 +1142,10 @@ select {
   .retro-screen .hero-button {
     min-width: 0;
     width: 100%;
+  }
+
+  .retro-screen .compact-actions .hero-button {
+    width: auto;
   }
 
   .gameplay-shell {
@@ -1127,7 +1182,35 @@ select {
   }
 
   .turn-checklist {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+
+  .turn-checklist li {
+    padding: 0.45rem;
+  }
+
+  .turn-checklist span {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+
+  .turn-checklist strong {
+    font-size: 0.76rem;
+  }
+
+  .action-card {
+    gap: 0.65rem;
+  }
+
+  .action-card label {
+    grid-template-columns: minmax(5.8rem, 0.35fr) minmax(0, 1fr);
+    gap: 0.55rem;
+    align-items: center;
+  }
+
+  .action-card label > span {
+    line-height: 1.15;
   }
 
   .market-row {
@@ -1144,5 +1227,17 @@ select {
 
   .market-reference[open] .market-table {
     max-height: 52vh;
+  }
+}
+
+@media (max-width: 380px) {
+  .masthead-stats,
+  .turn-checklist,
+  .action-card label {
+    grid-template-columns: 1fr;
+  }
+
+  .compact-actions {
+    flex-wrap: wrap;
   }
 }
