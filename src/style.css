@@ -200,28 +200,17 @@ h3 {
   overflow: hidden;
 }
 
-.ascii-prunelda {
+.prunelda-art {
+  display: block;
+  width: min(100%, 360px);
   max-width: 100%;
   margin: 0;
-  overflow-x: auto;
-  color: var(--atari-green);
-  font-family: 'Courier New', Courier, monospace;
-  font-size: clamp(0.56rem, 1.2vw, 0.86rem);
-  line-height: 1.05;
-  letter-spacing: 0;
-  text-align: left;
-  text-transform: none;
-  white-space: pre;
-  scrollbar-color: var(--green-border-strong) var(--atari-black);
+  object-fit: contain;
 }
 
-.ascii-gold {
-  color: var(--atari-gold);
-}
-
-.title-ascii {
+.title-prunelda-art {
   margin-top: 1rem;
-  color: var(--atari-green);
+  max-height: 250px;
 }
 
 .marquee-mini,
@@ -820,12 +809,12 @@ select {
   z-index: 0;
 }
 
-.ending-ascii {
+.ending-prunelda-art {
+  width: min(100%, 520px);
+  max-height: 620px;
   align-self: center;
-  padding: 1rem;
   border: 2px solid var(--green-border);
   background: var(--atari-black);
-  font-size: clamp(0.68rem, 1.25vw, 1rem);
 }
 
 .headline-modal-backdrop {

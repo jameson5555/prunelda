@@ -10,6 +10,7 @@ import {
 } from './game-data.js'
 
 const app = document.querySelector('#app')
+const baseUrl = import.meta.env.BASE_URL
 const state = {
   view: 'title',
   setupCount: 1,
@@ -84,6 +85,10 @@ function saveGame() {
 function clearSavedGame() {
   window.localStorage.removeItem(STORAGE_KEY)
   state.game = null
+}
+
+function assetUrl(path) {
+  return `${baseUrl}${path}`
 }
 
 function sample(list) {
@@ -545,28 +550,9 @@ function handleBet(formData) {
   render()
 }
 
-function pruneldaAsciiArt(extraClass = '') {
+function pruneldaArt(extraClass = '') {
   return `
-    <pre class="ascii-prunelda ${extraClass}" aria-label="ASCII art of Aunt Prunelda with money bags.">          .-""""-.
-         /  .--.  \\
-        |  ( () )  |
-        |   '--'   |
-         \\  .__.  /
-          '.___.'
-            /|\\
-       .---/ | \\---.
-      /  _   |   _  \\
-     /__/ |  |  | \\__\\
-        <span class="ascii-gold">/===\\</span>|  |<span class="ascii-gold">/===\\</span>
-       <span class="ascii-gold">/ $ $ \\</span> | <span class="ascii-gold">/ $ $ \\</span>
-      <span class="ascii-gold">|  $$$  |</span>|<span class="ascii-gold">|  $$$  |</span>
-       <span class="ascii-gold">\\_____/</span> | <span class="ascii-gold">\\_____/</span>
-            / \\
-           /___\\
-          _|   |_
-         (_)   (_)
-              <span class="ascii-gold">|</span>
-              <span class="ascii-gold">|</span></pre>
+    <img class="prunelda-art ${extraClass}" src="${assetUrl('images/prunelda-money-bags.png')}" alt="Aunt Prunelda standing with two money bags." />
   `
 }
 
@@ -582,7 +568,7 @@ function titleView() {
         <p class="marquee-big">Prunelda&apos;s</p>
         <h1 class="marquee-title">Inheritance!</h1>
         <p class="marquee-copy">Compete with other players and Cousin Horatio for your ridiculously wealthy aunt&apos;s estate.</p>
-        ${pruneldaAsciiArt('title-ascii')}
+        ${pruneldaArt('title-prunelda-art')}
         <div class="hero-actions marquee-actions">
           <button class="hero-button" data-action="begin-setup">Start New Game</button>
           ${continueButton}
@@ -925,7 +911,7 @@ function endingView() {
             </div>
           </div>
           <div class="ending-art">
-            ${pruneldaAsciiArt('ending-ascii')}
+            ${pruneldaArt('ending-prunelda-art')}
           </div>
         </div>
       </section>
