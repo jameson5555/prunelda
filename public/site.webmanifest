@@ -1,0 +1,22 @@
+{
+  "name": "Aunt Prunelda's Inheritance",
+  "short_name": "Prunelda",
+  "description": "A browser-native remake of Aunt Prunelda's Inheritance.",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "theme_color": "#020202",
+  "background_color": "#020202",
+  "display": "standalone"
+}
