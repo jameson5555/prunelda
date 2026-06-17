@@ -50,7 +50,8 @@ function normalizeSavedGame(game) {
   }
 
   const oldInstruction = `${player.name}, enter the number of the property you wish to visit next.`
-  if (game.currentTurn.status === oldInstruction) {
+  const previousInstruction = `${player.name}, trade stocks, place one optional dice bet, then press Continue to end your turn.`
+  if (game.currentTurn.status === oldInstruction || game.currentTurn.status === previousInstruction) {
     game.currentTurn.status = turnInstruction(player)
     updated = true
   }
@@ -73,7 +74,7 @@ function normalizeSavedGame(game) {
 }
 
 function turnInstruction(player) {
-  return `${player.name}, trade stocks, place one optional dice bet, then press Continue to end your turn.`
+  return `${player.name}, review the news, trade any stocks you want, optionally roll the dice, then end your turn.`
 }
 
 function saveGame() {
@@ -109,6 +110,60 @@ function formatMoney(value) {
 
 function formatPercent(value) {
   return `${value}%`
+}
+
+function formatSector(sector) {
+  return sector
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
+function headlineImpactForBusiness(game, business) {
+  return game.headline?.effects?.[business.id] || 0
+}
+
+function headlineImpactLabel(value) {
+  if (value > 0) {
+    return `News boost +${Math.round(value * 100)}%`
+  }
+
+  if (value < 0) {
+    return `News drag ${Math.round(value * 100)}%`
+  }
+
+  return 'No direct news'
+}
+
+function headlineImpactClass(value) {
+  if (value > 0) {
+    return 'is-up'
+  }
+
+  if (value < 0) {
+    return 'is-down'
+  }
+
+  return 'is-neutral'
+}
+
+function affectedBusinesses(game) {
+  const map = businessMap(game)
+  return Object.entries(game.headline?.effects || {})
+    .map(([id, effect]) => ({
+      business: map.get(Number(id)),
+      effect,
+    }))
+    .filter((entry) => entry.business)
+    .sort((left, right) => Math.abs(right.effect) - Math.abs(left.effect))
+}
+
+function monthsLeft(game) {
+  return Math.max(0, game.monthsTotal - game.month + 1)
+}
+
+function horatioGap(game, netWorth) {
+  return Math.max(0, game.horatioNetWorth - netWorth + 1)
 }
 
 function businessMap(game) {
@@ -407,7 +462,7 @@ function handleBuy(formData) {
 
   player.cash -= total
   player.holdings[businessId] = (player.holdings[businessId] || 0) + quantity
-  game.currentTurn.status = `Purchased ${quantity} stake${quantity > 1 ? 's' : ''} in ${business.name}.`
+  game.currentTurn.status = `Bought ${quantity} ${business.name} stake${quantity > 1 ? 's' : ''} for ${formatMoney(total)}. You now own ${player.holdings[businessId]} and have ${formatMoney(player.cash)} cash left.`
   pushLog(game, `${player.name} bought ${quantity} ${business.name} stake${quantity > 1 ? 's' : ''} for ${formatMoney(total)}.`)
   saveGame()
   render()
@@ -438,7 +493,7 @@ function handleSell(formData) {
     delete player.holdings[businessId]
   }
 
-  game.currentTurn.status = `Sold ${quantity} stake${quantity > 1 ? 's' : ''} in ${business.name}.`
+  game.currentTurn.status = `Sold ${quantity} ${business.name} stake${quantity > 1 ? 's' : ''} for ${formatMoney(total)}. You now own ${player.holdings[businessId] || 0} and have ${formatMoney(player.cash)} cash.`
   pushLog(game, `${player.name} sold ${quantity} ${business.name} stake${quantity > 1 ? 's' : ''} for ${formatMoney(total)}.`)
   saveGame()
   render()
@@ -490,7 +545,7 @@ function handleBet(formData) {
 
   player.cash += delta
   game.currentTurn.canBet = false
-  game.currentTurn.status = text
+  game.currentTurn.status = `${text} ${delta > 0 ? 'Cash gained' : 'Cash lost'}: ${formatMoney(Math.abs(delta))}. Cash now: ${formatMoney(player.cash)}.`
   pushLog(game, `${player.name}: ${text} ${delta !== 0 ? `(${delta > 0 ? '+' : ''}${formatMoney(delta)})` : ''}`)
   saveGame()
   render()
@@ -579,14 +634,17 @@ function marketTable(game, player) {
     <div class="market-table">
       ${game.businesses.map((business) => {
         const owned = player.holdings[business.id] || 0
+        const impact = headlineImpactForBusiness(game, business)
         return `
-          <article class="market-row">
-            <div>
+          <article class="market-row ${impact !== 0 ? 'has-impact' : ''}">
+            <div class="market-business">
               <p class="market-id">${business.id}. ${business.name}</p>
+              <p class="market-sector">${formatSector(business.sector)}</p>
             </div>
             <div class="market-stats">
               <span>${formatMoney(business.price)}</span>
               <span>Owned: ${owned}</span>
+              <span class="impact-badge ${headlineImpactClass(impact)}">${headlineImpactLabel(impact)}</span>
             </div>
           </article>
         `
@@ -626,6 +684,55 @@ function logMarkup(game) {
   `
 }
 
+function affectedBusinessesMarkup(game) {
+  const entries = affectedBusinesses(game)
+  if (!entries.length) {
+    return '<p class="helper-copy">No stocks are directly named by this bulletin. Watch the market drift and prime rate.</p>'
+  }
+
+  return `
+    <ul class="affected-list">
+      ${entries.map(({ business, effect }) => `
+        <li>
+          <span>${business.name}</span>
+          <strong class="${headlineImpactClass(effect)}">${effect > 0 ? 'Up' : 'Down'} ${Math.abs(Math.round(effect * 100))}%</strong>
+        </li>
+      `).join('')}
+    </ul>
+  `
+}
+
+function strategyBriefingMarkup(game, player, netWorth) {
+  if (game.month !== 1 || game.activePlayerIndex !== 0) {
+    return ''
+  }
+
+  return `
+    <section class="strategy-panel retro-screen gameplay-panel">
+      <h2>How To Win</h2>
+      <ul class="strategy-list">
+        <li>Beat Cousin Horatio after 12 months.</li>
+        <li>Net worth is your cash plus the current value of your holdings.</li>
+        <li>Monthly news points toward stocks that may be worth buying or selling.</li>
+        <li>The dice bet is optional. Skip it whenever your cash matters more.</li>
+      </ul>
+      <p class="helper-copy">${player.name} needs ${formatMoney(horatioGap(game, netWorth))} more net worth to pass Horatio right now.</p>
+    </section>
+  `
+}
+
+function turnChecklistMarkup(game) {
+  const traded = !game.currentTurn.status.includes('review the news')
+  return `
+    <ol class="turn-checklist" aria-label="Turn checklist">
+      <li class="is-done"><span>1</span><strong>Read the monthly news</strong></li>
+      <li class="${traded ? 'is-done' : ''}"><span>2</span><strong>Buy or sell stocks</strong></li>
+      <li class="${game.currentTurn.canBet ? '' : 'is-done'}"><span>3</span><strong>Optional dice bet</strong></li>
+      <li><span>4</span><strong>End turn</strong></li>
+    </ol>
+  `
+}
+
 function headlineModalMarkup(game) {
   if (!isHeadlineModalOpen(game)) {
     return ''
@@ -637,6 +744,10 @@ function headlineModalMarkup(game) {
         <p class="eyebrow">Monthly News Bulletin</p>
         <h2 id="headline-modal-title" class="headline-modal-title">${game.headline.text}</h2>
         <p class="headline-modal-copy">${game.headline.blurb}</p>
+        <div class="headline-impacts">
+          <h3>Stocks named by the news</h3>
+          ${affectedBusinessesMarkup(game)}
+        </div>
         <div class="headline-modal-actions">
           <button class="hero-button secondary" type="button" data-action="dismiss-headline-modal">Continue To Trading</button>
         </div>
@@ -652,6 +763,7 @@ function gameView() {
   const ownedBusinesses = sellableBusinesses(game, player)
   const canSell = ownedBusinesses.length > 0
   const reviewMode = game.finished
+  const gap = horatioGap(game, netWorth)
 
   return `
     <main class="game-shell play-shell gameplay-shell">
@@ -667,15 +779,20 @@ function gameView() {
           <div><span>Current player</span><strong>${player.name}</strong></div>
           <div><span>Cash on hand</span><strong>${formatMoney(player.cash)}</strong></div>
           <div><span>Net worth</span><strong>${formatMoney(netWorth)}</strong></div>
+          <div><span>Months left</span><strong>${monthsLeft(game)}</strong></div>
+          <div><span>Needed to beat Horatio</span><strong>${gap > 0 ? formatMoney(gap) : 'Ahead!'}</strong></div>
         </div>
       </section>
 
       <section class="play-grid">
         <section class="main-panel">
+          ${strategyBriefingMarkup(game, player, netWorth)}
+
           <div class="turn-card retro-screen focus-card">
             <h2>${reviewMode ? 'Final Turn Summary' : 'Current Turn'}</h2>
             <p class="turn-event">${game.currentTurn.eventText}</p>
             <p class="turn-status">${reviewMode ? 'Review the final standings and monthly headlines below.' : game.currentTurn.status}</p>
+            ${reviewMode ? '' : turnChecklistMarkup(game)}
           </div>
 
           <div class="action-grid">
@@ -684,7 +801,11 @@ function gameView() {
               <label>
                 <span>Business</span>
                 <select name="businessId">
-                  ${game.businesses.map((business) => `<option value="${business.id}">${business.id}. ${business.name} (${formatMoney(business.price)})</option>`).join('')}
+                  ${game.businesses.map((business) => {
+                    const impact = headlineImpactForBusiness(game, business)
+                    const impactText = impact === 0 ? '' : ` - ${headlineImpactLabel(impact)}`
+                    return `<option value="${business.id}">${business.id}. ${business.name} (${formatMoney(business.price)})${impactText}</option>`
+                  }).join('')}
                 </select>
               </label>
               <label>
@@ -712,7 +833,8 @@ function gameView() {
             </form>
 
             <form id="bet-form" class="action-card retro-screen gameplay-panel">
-              <h3>Would You Like To Bet?</h3>
+              <h3>Optional Dice Bet</h3>
+              <p class="helper-copy">One roll per turn. It can help, but it can also erase useful trading cash.</p>
               <label>
                 <span>Your bet is</span>
                 <input type="number" name="bet" min="1" max="${Math.max(1, Math.floor(player.cash))}" value="1000" />
@@ -724,7 +846,7 @@ function gameView() {
           <section class="holdings-panel retro-screen gameplay-panel">
             <div class="panel-heading">
               <h2>${player.name}&apos;s Current Holdings</h2>
-              <button class="hero-button small secondary" data-action="end-turn" ${reviewMode ? 'disabled' : ''}>Press To Continue</button>
+              <button class="hero-button small secondary desktop-end-turn" data-action="end-turn" ${reviewMode ? 'disabled' : ''}>End Turn</button>
             </div>
             ${holdingsMarkup(game, player)}
           </section>
@@ -745,6 +867,9 @@ function gameView() {
 
       ${logMarkup(game)}
       ${headlineModalMarkup(game)}
+      <div class="mobile-end-turn-bar ${reviewMode ? 'is-hidden' : ''}" aria-hidden="${reviewMode ? 'true' : 'false'}">
+        <button class="hero-button secondary" data-action="end-turn" ${reviewMode ? 'disabled' : ''}>End Turn</button>
+      </div>
     </main>
   `
 }

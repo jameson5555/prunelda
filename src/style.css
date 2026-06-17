@@ -60,10 +60,12 @@ h1,
 h2,
 h3,
 p,
+ol,
 ul {
   margin: 0;
 }
 
+ol,
 ul {
   padding: 0;
   list-style: none;
@@ -103,6 +105,7 @@ ul {
 .turn-card,
 .action-card,
 .holdings-panel,
+.strategy-panel,
 .side-panel,
 .log-panel {
   border: 2px solid var(--border);
@@ -487,6 +490,7 @@ select {
 .gameplay-panel .turn-event,
 .gameplay-panel .turn-status,
 .gameplay-panel .empty-note,
+.gameplay-panel .helper-copy,
 .gameplay-panel .market-stats,
 .gameplay-panel span,
 .gameplay-panel p,
@@ -590,6 +594,7 @@ select {
 }
 
 .turn-card,
+.strategy-panel,
 .side-panel,
 .log-panel,
 .holdings-panel {
@@ -616,6 +621,68 @@ select {
   font-size: clamp(0.98rem, 1.4vw, 1.15rem);
   line-height: 1.45;
   font-weight: 400;
+}
+
+.strategy-panel {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.strategy-list {
+  display: grid;
+  gap: 0.45rem;
+  list-style: disc;
+  padding-left: 1.15rem;
+}
+
+.helper-copy {
+  color: var(--ink-faint);
+  line-height: 1.45;
+  text-transform: none;
+}
+
+.gameplay-panel .helper-copy {
+  color: var(--ink-faint);
+}
+
+.turn-checklist {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.turn-checklist li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.45rem;
+  align-items: center;
+  border: 1px solid var(--green-border);
+  padding: 0.55rem;
+  min-width: 0;
+}
+
+.turn-checklist span {
+  display: inline-grid;
+  place-items: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  border: 1px solid var(--green-border-strong);
+  color: var(--atari-green);
+}
+
+.turn-checklist strong {
+  font-size: 0.82rem;
+  line-height: 1.2;
+}
+
+.turn-checklist li.is-done {
+  border-color: var(--atari-gold);
+}
+
+.turn-checklist li.is-done span {
+  border-color: var(--atari-gold);
+  color: var(--atari-gold);
 }
 
 .action-grid {
@@ -769,6 +836,40 @@ select {
   line-height: 1.5;
 }
 
+.headline-impacts {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.affected-list {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.affected-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  border: 1px solid var(--green-border);
+  padding: 0.55rem 0.65rem;
+}
+
+.affected-list strong,
+.impact-badge {
+  color: var(--atari-white);
+}
+
+.affected-list .is-up,
+.impact-badge.is-up {
+  color: var(--atari-green);
+}
+
+.affected-list .is-down,
+.impact-badge.is-down {
+  color: var(--atari-gold);
+}
+
 .headline-modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -787,6 +888,36 @@ select {
   justify-items: end;
   gap: 0.12rem;
   font-size: 0.84rem;
+}
+
+.market-business {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.market-sector {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+}
+
+.impact-badge {
+  border: 1px solid var(--green-border);
+  padding: 0.12rem 0.3rem;
+  font-size: 0.72rem;
+  white-space: normal;
+  text-align: right;
+}
+
+.market-row.has-impact {
+  border-color: var(--green-border-strong);
+}
+
+.mobile-end-turn-bar {
+  display: none;
+}
+
+.mobile-end-turn-bar.is-hidden {
+  display: none;
 }
 
 .log-list li {
@@ -844,6 +975,7 @@ select {
   .turn-card,
   .action-card,
   .holdings-panel,
+  .strategy-panel,
   .side-panel,
   .log-panel {
     border-radius: 0;
@@ -897,5 +1029,54 @@ select {
   .retro-screen .hero-button {
     min-width: 0;
     width: 100%;
+  }
+
+  .gameplay-shell {
+    padding-bottom: calc(6.25rem + env(safe-area-inset-bottom));
+  }
+
+  .desktop-end-turn {
+    display: none;
+  }
+
+  .mobile-end-turn-bar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 20;
+    display: block;
+    padding: 0.75rem 0.75rem calc(0.75rem + env(safe-area-inset-bottom));
+    border-top: 2px solid var(--green-border-strong);
+    background:
+      linear-gradient(rgba(18, 233, 161, 0.055) 1px, transparent 1px),
+      var(--atari-black);
+    background-size: 100% 4px;
+  }
+
+  .mobile-end-turn-bar.is-hidden {
+    display: none;
+  }
+
+  .mobile-end-turn-bar .hero-button {
+    width: 100%;
+    min-height: 3.25rem;
+    background: var(--atari-black);
+  }
+
+  .turn-checklist {
+    grid-template-columns: 1fr;
+  }
+
+  .market-row {
+    grid-template-columns: 1fr;
+  }
+
+  .market-stats {
+    justify-items: start;
+  }
+
+  .impact-badge {
+    text-align: left;
   }
 }
