@@ -659,6 +659,19 @@ function marketTable(game, player) {
   `
 }
 
+function marketReferenceMarkup(game, player) {
+  const defaultOpen = window.matchMedia('(min-width: 721px)').matches
+
+  return `
+    <details class="side-panel market-reference retro-screen gameplay-panel" ${defaultOpen ? 'open' : ''}>
+      <summary class="market-reference-summary">
+        <span>Market Board</span>
+      </summary>
+      ${marketTable(game, player)}
+    </details>
+  `
+}
+
 function playerScoreboard(game) {
   const rankingRows = sortedPlayers(game).map((player, index) => `
     <li>
@@ -860,10 +873,7 @@ function gameView() {
 
         <aside class="rail-panel">
           ${playerScoreboard(game)}
-          <section class="side-panel retro-screen gameplay-panel">
-            <h2>Stock Selection Menu</h2>
-            ${marketTable(game, player)}
-          </section>
+          ${reviewMode ? '' : marketReferenceMarkup(game, player)}
           <section class="side-panel compact-actions retro-screen gameplay-panel">
             <button class="hero-button secondary" data-action="save-quit">Save</button>
             <button class="hero-button ghost" data-action="restart-game">Restart</button>
