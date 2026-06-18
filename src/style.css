@@ -727,6 +727,18 @@ select {
   min-width: 0;
 }
 
+.trade-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(6.5rem, 8rem);
+  gap: 0.65rem;
+  align-items: end;
+  min-width: 0;
+}
+
+.trade-quantity-field input {
+  text-align: right;
+}
+
 .action-card .hero-button {
   justify-self: start;
 }
@@ -1209,6 +1221,15 @@ select {
     align-items: center;
   }
 
+  .trade-row {
+    grid-template-columns: minmax(0, 1fr) minmax(5.8rem, 7rem);
+  }
+
+  .trade-row label {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
   .action-card label > span {
     line-height: 1.15;
   }
@@ -1233,7 +1254,8 @@ select {
 @media (max-width: 380px) {
   .masthead-stats,
   .turn-checklist,
-  .action-card label {
+  .action-card label,
+  .trade-row {
     grid-template-columns: 1fr;
   }
 

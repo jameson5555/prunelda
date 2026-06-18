@@ -817,37 +817,41 @@ function gameView() {
           <div class="action-grid">
             <form id="buy-form" class="action-card retro-screen gameplay-panel">
               <h3>Buy Shares</h3>
-              <label>
-                <span>Business</span>
-                <select name="businessId">
-                  ${game.businesses.map((business) => {
-                    const impact = headlineImpactForBusiness(game, business)
-                    const impactText = impact === 0 ? '' : ` - ${headlineImpactLabel(impact)}`
-                    return `<option value="${business.id}">${business.id}. ${business.name} (${formatMoney(business.price)})${impactText}</option>`
-                  }).join('')}
-                </select>
-              </label>
-              <label>
-                <span>Quantity</span>
-                <input type="number" name="quantity" min="1" value="1" />
-              </label>
+              <div class="trade-row">
+                <label class="trade-business-field">
+                  <span>Business</span>
+                  <select name="businessId">
+                    ${game.businesses.map((business) => {
+                      const impact = headlineImpactForBusiness(game, business)
+                      const impactText = impact === 0 ? '' : ` - ${headlineImpactLabel(impact)}`
+                      return `<option value="${business.id}">${business.id}. ${business.name} (${formatMoney(business.price)})${impactText}</option>`
+                    }).join('')}
+                  </select>
+                </label>
+                <label class="trade-quantity-field">
+                  <span>Quantity</span>
+                  <input type="number" name="quantity" min="1" value="1" />
+                </label>
+              </div>
               <button type="submit" class="hero-button small" ${reviewMode ? 'disabled' : ''}>Buy</button>
             </form>
 
             <form id="sell-form" class="action-card retro-screen gameplay-panel">
               <h3>Sell Shares</h3>
-              <label>
-                <span>Business</span>
-                <select name="businessId" ${canSell ? '' : 'disabled'}>
-                  ${canSell
-                    ? ownedBusinesses.map(({ business, shares }) => `<option value="${business.id}">${business.id}. ${business.name} (${shares} owned)</option>`).join('')
-                    : '<option value="">No holdings to sell</option>'}
-                </select>
-              </label>
-              <label>
-                <span>Quantity</span>
-                <input type="number" name="quantity" min="1" value="1" ${canSell ? '' : 'disabled'} />
-              </label>
+              <div class="trade-row">
+                <label class="trade-business-field">
+                  <span>Business</span>
+                  <select name="businessId" ${canSell ? '' : 'disabled'}>
+                    ${canSell
+                      ? ownedBusinesses.map(({ business, shares }) => `<option value="${business.id}">${business.id}. ${business.name} (${shares} owned)</option>`).join('')
+                      : '<option value="">No holdings to sell</option>'}
+                  </select>
+                </label>
+                <label class="trade-quantity-field">
+                  <span>Quantity</span>
+                  <input type="number" name="quantity" min="1" value="1" ${canSell ? '' : 'disabled'} />
+                </label>
+              </div>
               <button type="submit" class="hero-button small secondary" ${(canSell && !reviewMode) ? '' : 'disabled'}>Sell</button>
             </form>
 
