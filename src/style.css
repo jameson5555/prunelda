@@ -105,7 +105,6 @@ ul {
 .turn-card,
 .action-card,
 .holdings-panel,
-.strategy-panel,
 .side-panel,
 .log-panel {
   border: 2px solid var(--border);
@@ -607,7 +606,6 @@ select {
 }
 
 .turn-card,
-.strategy-panel,
 .side-panel,
 .log-panel,
 .holdings-panel {
@@ -634,11 +632,6 @@ select {
   font-size: clamp(0.98rem, 1.4vw, 1.15rem);
   line-height: 1.45;
   font-weight: 400;
-}
-
-.strategy-panel {
-  display: grid;
-  gap: 0.8rem;
 }
 
 .strategy-list {
@@ -1049,7 +1042,6 @@ select {
   .turn-card,
   .action-card,
   .holdings-panel,
-  .strategy-panel,
   .side-panel,
   .log-panel {
     border-radius: 0;
@@ -1096,7 +1088,6 @@ select {
   .turn-card,
   .action-card,
   .holdings-panel,
-  .strategy-panel,
   .side-panel,
   .log-panel {
     padding: 0.75rem;

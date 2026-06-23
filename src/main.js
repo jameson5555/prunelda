@@ -63,6 +63,11 @@ function normalizeSavedGame(game) {
     updated = true
   }
 
+  if (typeof game.winBriefingDismissed !== 'boolean') {
+    game.winBriefingDismissed = true
+    updated = true
+  }
+
   syncHeadlineModal(game)
   if (game.headlineModal.month !== game.month) {
     game.headlineModal.month = game.month
@@ -204,7 +209,7 @@ function syncHeadlineModal(game) {
 
 function isHeadlineModalOpen(game) {
   syncHeadlineModal(game)
-  return Boolean(game?.headline && !game.headlineModal.dismissed)
+  return Boolean(game?.headline && !game.headlineModal.dismissed && !isWinBriefingOpen(game))
 }
 
 function dismissHeadlineModal() {
@@ -214,6 +219,20 @@ function dismissHeadlineModal() {
 
   syncHeadlineModal(state.game)
   state.game.headlineModal.dismissed = true
+  saveGame()
+  render()
+}
+
+function isWinBriefingOpen(game) {
+  return Boolean(game && !game.winBriefingDismissed)
+}
+
+function dismissWinBriefing() {
+  if (!state.game) {
+    return
+  }
+
+  state.game.winBriefingDismissed = true
   saveGame()
   render()
 }
@@ -276,6 +295,7 @@ function createGame() {
       month: 1,
       dismissed: false,
     },
+    winBriefingDismissed: false,
     finished: false,
     outcome: null,
   }
@@ -721,22 +741,28 @@ function affectedBusinessesMarkup(game) {
   `
 }
 
-function strategyBriefingMarkup(game, player, netWorth) {
-  if (game.month !== 1 || game.activePlayerIndex !== 0) {
+function winBriefingModalMarkup(game, player, netWorth) {
+  if (!isWinBriefingOpen(game)) {
     return ''
   }
 
   return `
-    <section class="strategy-panel retro-screen gameplay-panel">
-      <h2>How To Win</h2>
-      <ul class="strategy-list">
-        <li>Beat Cousin Horatio after 12 months.</li>
-        <li>Net worth is your cash plus the current value of your holdings.</li>
-        <li>Monthly news points toward stocks that may be worth buying or selling.</li>
-        <li>The dice bet is optional. Skip it whenever your cash matters more.</li>
-      </ul>
-      <p class="helper-copy">${player.name} needs ${formatMoney(horatioGap(game, netWorth))} more net worth to pass Horatio right now.</p>
-    </section>
+    <div class="headline-modal-backdrop" data-win-briefing-backdrop="true">
+      <section class="headline-modal retro-screen gameplay-panel" data-win-briefing-panel="true" role="dialog" aria-modal="true" aria-labelledby="win-briefing-title">
+        <p class="eyebrow">Estate Briefing</p>
+        <h2 id="win-briefing-title" class="headline-modal-title">How To Win</h2>
+        <ul class="strategy-list">
+          <li>Beat Cousin Horatio after 12 months.</li>
+          <li>Net worth is your cash plus the current value of your holdings.</li>
+          <li>Monthly news points toward stocks that may be worth buying or selling.</li>
+          <li>The dice bet is optional. Skip it whenever your cash matters more.</li>
+        </ul>
+        <p class="helper-copy">${player.name} needs ${formatMoney(horatioGap(game, netWorth))} more net worth to pass Horatio right now.</p>
+        <div class="headline-modal-actions">
+          <button class="hero-button secondary" type="button" data-action="dismiss-win-briefing">Begin Trading</button>
+        </div>
+      </section>
+    </div>
   `
 }
 
@@ -805,8 +831,6 @@ function gameView() {
 
       <section class="play-grid">
         <section class="main-panel">
-          ${strategyBriefingMarkup(game, player, netWorth)}
-
           <div class="turn-card retro-screen focus-card">
             <h2>${reviewMode ? 'Final Turn Summary' : 'Current Turn'}</h2>
             <p class="turn-event">${game.currentTurn.eventText}</p>
@@ -886,6 +910,7 @@ function gameView() {
       </section>
 
       ${logMarkup(game)}
+      ${winBriefingModalMarkup(game, player, netWorth)}
       ${headlineModalMarkup(game)}
       <div class="mobile-end-turn-bar ${reviewMode ? 'is-hidden' : ''}" aria-hidden="${reviewMode ? 'true' : 'false'}">
         <button class="hero-button secondary" data-action="end-turn" ${reviewMode ? 'disabled' : ''}>End Turn</button>
@@ -953,6 +978,11 @@ function render() {
 }
 
 app.addEventListener('click', (event) => {
+  if (event.target instanceof Element && event.target.hasAttribute('data-win-briefing-backdrop')) {
+    dismissWinBriefing()
+    return
+  }
+
   if (event.target instanceof Element && event.target.hasAttribute('data-headline-modal-backdrop')) {
     dismissHeadlineModal()
     return
@@ -970,6 +1000,9 @@ app.addEventListener('click', (event) => {
     state.view = 'title'
   } else if (action === 'dismiss-headline-modal') {
     dismissHeadlineModal()
+    return
+  } else if (action === 'dismiss-win-briefing') {
+    dismissWinBriefing()
     return
   } else if (action === 'player-count') {
     state.setupCount = Number(target.dataset.count)
